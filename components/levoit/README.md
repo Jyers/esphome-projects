@@ -2,10 +2,12 @@
 
 This component supports the following model 
 
-* Levoit Vital 100s, MCU 1.0.5
+* Levoit Vital 100s, MCU 1.0.5 - tested
 * Levoit Vital 200s
 * Levoit Core 300s, MCU 2.0.11
 * Levoit Core 400s, MCU 3.0.0
+
+esphome version: 2025.10.5 (newer might need a change!)
 
 Special thanks to
 
@@ -13,11 +15,11 @@ Special thanks to
 * https://github.com/acvigue/
 * https://github.com/targor/
 
-Inspired by those projects:
+Inspired by this projects:
 
 * [Levoit Vital by targor](https://github.com/targor/levoit_vital/?tab=readme-ov-file)
-* [Levoit Core by mulcmu](https://github.com/mulcmu/esphome-levoit-core300s
-* [Levoit Core by acvigue](https://github.com/acvigue/esphome-levoit-air-purifier
+* [Levoit Core by mulcmu](https://github.com/mulcmu/esphome-levoit-core300s)
+* [Levoit Core by acvigue](https://github.com/acvigue/esphome-levoit-air-purifier)
 
 ## Features
 
@@ -39,4 +41,6 @@ Inspired by those projects:
 * Check: after timer -> Room Size was min again!
 * add examples for Models
 * check if the diff between core400s and core 300s is cause of MCU version...
+* set icons etc
+* check compatibility with 2025.11+ (preset mode changes)!
 
