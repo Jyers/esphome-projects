@@ -177,12 +177,13 @@ For complete working examples, see the [free-levoit project configurations](../.
 ```
 levoit/
 ├── levoit.cpp/.h           # Main component, UART handling, message routing
+├── levoit_message.h/.cpp   # Message building and frame construction utilities
 ├── decoder.cpp/.h          # Frame parsing and message dispatch
 ├── types.h                 # Enum definitions for commands and entity types
 ├── core_status.cpp/.h      # Core series status/timer payload decoders
 ├── vital_status.cpp/.h     # Vital series status payload decoders
-├── core_commands.cpp       # Core series command builders (300S/400S)
-├── vital_commands.cpp      # Vital series command builders (100S/200S)
+├── core_commands.cpp/.h    # Core series command builders (300S/400S)
+├── vital_commands.cpp/.h   # Vital series command builders (100S/200S)
 ├── decoder_helpers.h       # Shared utility functions
 ├── tlv.cpp/.h             # TLV encoding for complex payloads
 └── [platform]/            # ESPHome platform integrations
@@ -198,6 +199,7 @@ levoit/
 - **Interface**: UART at 115200 baud
 - **Frame Format**: `A5 [type:3] [seq:1] [len:1] [reserved:1] [chk:1] [cmd:1] [payload:N]`
 - **Byte Order**: Little-endian for multi-byte values
+- **Message Counter**: Global sequence number (`messageUpCounter`) tracks outgoing messages
 - **Model Detection**: Automatic based on initial handshake (TODO)
 - **Checksum**: Sum of all bytes excluding checksum byte itself
 
@@ -247,17 +249,16 @@ For complete configuration examples, see the [free-levoit project](../../project
 
 ## Development Notes
 
-### Building
-PlatformIO requires force-including command implementation files in [levoit.cpp](levoit.cpp):
-```cpp
-#include "core_commands.cpp"
-#include "vital_commands.cpp"
-```
+### Code Organization
+- **Message Building**: Centralized in `levoit_message.h/.cpp` with inline functions for efficiency
+- **Command Builders**: Separated into `core_commands.cpp` and `vital_commands.cpp` for model-specific logic
+- **Global Counter**: `messageUpCounter` tracks outgoing message sequence (inline variable in `levoit_message.h`)
 
 ### Adding New Commands
 1. Add enum to `CommandType` in [types.h](types.h)
-2. Implement in `build_core_command()` or `build_vital_command()`
-3. Pattern: Define `msg_type` and `payload` vectors, return `build_levoit_message(msg_type, payload)`
+2. Implement in `build_core_command()` or `build_vital_command()` depending on model series
+3. Pattern: Define `msg_type` and `payload` vectors, return `build_levoit_message(msg_type, payload, messageUpCounter)`
+4. The `build_levoit_message()` function handles frame construction, counter insertion, and checksum calculation
 
 ### Debugging
 Enable verbose logging in your YAML:
@@ -270,16 +271,33 @@ uart:
     direction: BOTH  # Monitor raw UART traffic
 ```
 
+## ESPHome 2025.12.5+ Compatibility
+
+This component has been updated for ESPHome 2025.12.5 with the following changes:
+
+### Fan Component Updates
+- **Preset Mode API**: Now uses internal tracking (`current_preset_`) since `preset_mode_` is private
+- **Preset Modes**: Changed from `std::set` to `std::vector<std::string>` for `supported_preset_modes()`
+- **FanCall Handling**: Updated to use `has_preset_mode()` and proper string comparisons
+
+### Text Sensor Icons
+- Icons now configured via Python codegen schema rather than C++ `setup()`
+- Ensures proper Home Assistant entity registration with correct icons
+
+### Select Component
+- Migrated from deprecated `.state` to `current_option()` method
+
 ## Known Issues & TODO
 
-- [ ] Wifi Led blink and light after connect
+- [ ] WiFi LED control and status indication after connection
 - [ ] Add filter life time and current CADR sensors
 - [ ] Enable filter reset from Home Assistant
 - [ ] Implement custom sleep mode settings for Vital series
 - [ ] Model-specific room size validation based on CADR ratings
 - [ ] Verify Core 300S/400S protocol differences (MCU version dependency)
 - [x] Add appropriate icons for entities
-- [x] Test compatibility with ESPHome 2025.11+ (preset mode API changes)
+- [x] Test compatibility with ESPHome 2025.12+ (preset mode API changes)
+- [x] Update to ESPHome 2025.12.5 (completed)
 
 
 ## Credits

@@ -84,6 +84,9 @@ class Levoit : public Component, public uart::UARTDevice {
   size_t buf_len_{0};
 
   bool timer_active_{true};
+  bool wifi_led_solid_{false};
+  bool filter_led_on_{false};
+  bool filter_blinking_{false};
   // helper to convert enum to index
   static constexpr uint8_t st_idx_(SwitchType t) { return (uint8_t)t; }
   static constexpr uint8_t nt_idx_(NumberType t) { return (uint8_t)t; }

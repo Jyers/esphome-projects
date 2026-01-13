@@ -164,7 +164,7 @@ namespace esphome
         return {};
       }
 
-      return build_levoit_message(msg_type, payload);
+      return build_levoit_message(msg_type, payload, messageUpCounter);
     }
 
   } // namespace levoit
