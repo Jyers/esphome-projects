@@ -29,6 +29,7 @@ class LevoitFan final : public Component, public fan::Fan {
   fan::FanTraits traits_;
   std::vector<const char *> preset_modes_{};
   Levoit *parent_{nullptr};
+  const char *current_preset_{nullptr};  // Track current preset mode internally
 };
 
 }

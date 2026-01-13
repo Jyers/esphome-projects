@@ -11,7 +11,7 @@ Custom ESPHome component for Levoit air purifiers (Core and Vital series) enabli
 | Levoit Core 300S | 2.0.11 | ✅ Tested -> with new ESP!|
 | Levoit Core 400S | 3.0.0 | ⚠️ Untested |
 
-**Requirements:** ESPHome 2025.10.5+ (compatibility with 2025.11+ needs verification due to preset mode changes)
+**Requirements:** ESPHome 2025.12.5+
 
 ## Features
 
@@ -279,7 +279,7 @@ uart:
 - [ ] Investigate: Room size resets after timer completion
 - [ ] Verify Core 300S/400S protocol differences (MCU version dependency)
 - [ ] Add appropriate icons for entities
-- [ ] Test compatibility with ESPHome 2025.11+ (preset mode API changes)
+- [x] Test compatibility with ESPHome 2025.11+ (preset mode API changes)
 
 ## Credits
 

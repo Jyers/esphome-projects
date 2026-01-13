@@ -189,7 +189,7 @@ namespace esphome
             const std::string &opt = options[value];
 
             // avoid redundant publishes
-            if (sl->has_state() && sl->state == opt)
+            if (sl->has_state() && sl->current_option() == opt)
                 return;
 
             sl->publish_state(opt);

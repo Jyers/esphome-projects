@@ -1,6 +1,7 @@
 #include "levoit_fan.h"
 #include "../levoit.h"
 #include "esphome/core/log.h"
+#include <set>
 
 namespace esphome
 {
@@ -20,10 +21,11 @@ namespace esphome
             {2, "Auto"},
             {5, "Pet"},
         };
-        static int preset_to_device_mode(const std::string &preset)
+        static int preset_to_device_mode(const char *preset)
         {
+            if (!preset) return -1;
             for (auto &m : MODE_MAP)
-                if (preset == m.preset)
+                if (std::strcmp(preset, m.preset) == 0)
                     return m.device;
             return -1;
         }
@@ -43,10 +45,10 @@ namespace esphome
                 restore->apply(*this);
             }
             // based on model, set capabilities
-            std::set<std::string> preset_modes;
+            std::vector<const char *> preset_modes;
             for (const auto &m : MODE_MAP)
             {
-                preset_modes.insert(m.preset);
+                preset_modes.push_back(m.preset);
             }
             this->speed_count_ = 4;
 
@@ -68,7 +70,7 @@ namespace esphome
             // Track current values
             const bool cur_state = this->state;
             const int cur_speed = this->speed;
-            const std::string cur_preset = this->preset_mode;
+            const char *cur_preset = this->get_preset_mode();
 
             // ---- power ----
             if (call.get_state().has_value())
@@ -93,11 +95,11 @@ namespace esphome
             }
 
             // ---- preset/mode ----
-            const auto preset = call.get_preset_mode(); // your API returns std::string
-            if (!preset.empty() && preset != cur_preset)
+            const auto preset = call.get_preset_mode();
+            if (preset != nullptr && (cur_preset == nullptr || std::strcmp(cur_preset, preset) != 0))
             {
-                this->preset_mode = preset;
-                mode_cmd = preset_to_device_mode(this->preset_mode); // returns -1 if unknown
+                this->current_preset_ = preset;
+                mode_cmd = preset_to_device_mode(preset);
             }
 
             if (!parent_)
@@ -142,9 +144,9 @@ namespace esphome
             const char *preset = device_mode_to_preset(mode);
             if (preset != nullptr)
             {
-                if(this->preset_mode != preset)
+                if (this->current_preset_ == nullptr || std::strcmp(this->current_preset_, preset) != 0)
                     dirty = true;
-                this->preset_mode = preset; // std::string assignment is fine
+                this->current_preset_ = preset;
             }
             if(dirty)
             this->publish_state();
