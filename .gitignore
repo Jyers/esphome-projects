@@ -2,3 +2,4 @@ secret.yaml
 .esphome
 __pycache__
 .github/copilot-instructions.md
+components/secrets.yaml

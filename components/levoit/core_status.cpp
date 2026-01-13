@@ -82,13 +82,13 @@ namespace esphome
       uint8_t fan_speed = 0;
       if (model == ModelType::CORE300S)
       {
-        display_on = payload[7] != 0;
+        display_on = payload[6] != 0;
         fan_speed = payload[8];
       }
       else if (model == ModelType::CORE400S)
       {
         fan_speed = payload[5];
-        display_on = payload[6] != 0;
+        display_on = payload[7] != 0;
       }
 
       // publish state to ESPHome entities

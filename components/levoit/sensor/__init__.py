@@ -15,6 +15,8 @@ TYPE_MAP = {
     "pm25": SensorType.PM25,
     "timer_current": SensorType.TIMER_CURRENT,
     "efficiency_counter": SensorType.EFFICIENCY_COUNTER,
+    "current_cadr": SensorType.CURRENT_CADR,
+    "filter_life_left": SensorType.FILTER_LIFE_LEFT,
 }
   
 

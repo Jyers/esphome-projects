@@ -65,6 +65,18 @@ namespace esphome
                 return;
             text_sensor_[static_cast<uint8_t>(type)] = tsl;
         }
+        void Levoit::register_binary_sensor(BinarySensorType type, LevoitBinarySensor *bs)
+        {
+            if (!bs)
+                return;
+            binary_sensors_[bs_idx_(type)] = bs;
+        }
+        void Levoit::register_button(ButtonType type, LevoitButton *btn)
+        {
+            if (!btn)
+                return;
+            buttons_[static_cast<uint8_t>(type)] = btn;
+        }
         void Levoit::publish_switch(SwitchType type, bool state)
         {
             auto *sw = switches_[st_idx_(type)];
@@ -139,6 +151,21 @@ namespace esphome
                 return;
 
             tsl->publish_state(value);
+        }
+        void Levoit::publish_binary_sensor(BinarySensorType type, bool state)
+        {
+            // Store the desired state; platform entity will publish from its loop
+            binary_sensor_states_[bs_idx_(type)] = state;
+        }
+        void Levoit::publish_filter_stats_now()
+        {
+            // Publish filter life percent as float
+            float filter_left = this->calculate_filter_life_left_percent();
+            auto *se = this->sensors_[st_idx_(SensorType::FILTER_LIFE_LEFT)];
+            if (se != nullptr)
+                se->publish_state(filter_left);
+            // Publish binary sensor state based on 5% threshold
+            this->publish_binary_sensor(BinarySensorType::FILTER_LOW, filter_left < 5.0f);
         }
         void Levoit::on_switch_command(SwitchType type, bool state)
         {
@@ -302,46 +329,159 @@ namespace esphome
         void Levoit::setup()
         {
             ESP_LOGI(TAG, "Setting up Levoit %s", model_ == ModelType::VITAL200S ? "VITAL200S" : "VITAL100S");
+            //https://docs.google.com/spreadsheets/d/17j6FZwvqHRFkGoH5996u5JdR7tk4_7fNuTxAK7kc4Fk/edit?gid=1612245341#gid=1612245341
             if (model_ == ModelType::VITAL200S)
-                cadr = 416;
+                cadr = 415;
             if (model_ == ModelType::VITAL100S)
-                cadr = 243;
-
+                cadr = 221;
+            if (model_ == ModelType::CORE300S)
+                cadr = 214; 
+            if (model_ == ModelType::CORE400S)
+                cadr = 415;
+            if (model_ == ModelType::CORE200S)
+                cadr = 167;
+            if (model_ == ModelType::CORE600S)
+                cadr = 641;
+            
+            // Initialize preferences for tracking used_cadr and total_runtime
+            pref_used_cadr_ = global_preferences->make_preference<uint32_t>(fnv1_hash("levoit_used_cadr"));
+            pref_total_runtime_ = global_preferences->make_preference<uint32_t>(fnv1_hash("levoit_runtime"));
+            
+            // Restore saved values or initialize to 0
+            if (pref_used_cadr_.load(&used_cadr_)) {
+                ESP_LOGI(TAG, "Restored used_cadr: %u m³", used_cadr_);
+            } else {
+                used_cadr_ = 0;
+                ESP_LOGI(TAG, "Initialized used_cadr to 0");
+            }
+            if (pref_total_runtime_.load(&total_runtime_)) {
+                ESP_LOGI(TAG, "Restored total_runtime: %u hours", total_runtime_);
+            } else {
+                total_runtime_ = 0;
+                ESP_LOGI(TAG, "Initialized total_runtime to 0");
+            }
+                               
             // Set LED to blink on initial connect until WiFi is connected
             this->sendCommand(CommandType::setWifiLedBlinking);
             this->sendCommand(CommandType::setFilterLedOn);
             filter_led_on_ = true;
             filter_blinking_ = true;
+            
+            // Track CADR on initial setup
+            track_cadr_usage();
+        }
+        
+        void Levoit::track_cadr_usage()
+        {
+            // Get fan state - check if fan is ON using .state member
+            if (this->fan_ != nullptr && this->fan_->state) {
+                // Fan is enabled - track usage
+                total_runtime_++;
+                
+                // Get fan speed level (1-4) from .speed member
+                int speed = this->fan_->speed;
+                if (speed > 0 && speed <= 4) {
+                    // Use helper to compute current CADR/hour, then convert to per-minute
+                    uint32_t cadr_per_hour = this->calculate_current_cadr_per_hour();
+                    uint32_t cadr_per_min = cadr_per_hour / 60;
+                    used_cadr_ += cadr_per_min;
+                    ESP_LOGD(TAG, "CADR tracked: +%u m³ (speed=%d, total=%u m³, runtime=%u min)", 
+                             cadr_per_min, speed, used_cadr_, total_runtime_);
+                    
+                }
+                
+                // Calculate and publish filter life left (once per minute here)
+                float filter_left = this->calculate_filter_life_left_percent();
+                auto *se = this->sensors_[st_idx_(SensorType::FILTER_LIFE_LEFT)];
+                if (se != nullptr)
+                    se->publish_state(filter_left);
+                
+                // Save to preferences every minute when running
+                pref_used_cadr_.save(&used_cadr_);
+                pref_total_runtime_.save(&total_runtime_);
+            }
+        }
+
+        uint32_t Levoit::calculate_current_cadr_per_hour() const
+        {
+            if (this->fan_ == nullptr || !this->fan_->state)
+                return 0;
+            int speed = this->fan_->speed;
+            // Determine max speed based on model (Core300S has 3 speeds)
+            uint32_t max_speed = (this->model_ == ModelType::CORE300S) ? 3u : 4u;
+            if (speed <= 0 || (uint32_t)speed > max_speed)
+                return 0;
+            uint32_t result = (cadr * (uint32_t)speed) / max_speed;
+
+            // Sleep mode derates level 1 to 63%
+            const char *preset = this->fan_->get_preset_mode();
+            if (preset != nullptr && std::strcmp(preset, "Sleep") == 0 && speed == 1)
+            {
+                result = (uint32_t)(result * 0.63f);
+            }
+
+            return result;
+        }
+
+        float Levoit::calculate_filter_life_left_percent() const
+        {
+            auto *filter_lifetime_num = this->get_number(NumberType::FILTER_LIFETIME_MONTHS);
+            if (filter_lifetime_num == nullptr || !filter_lifetime_num->has_state())
+                return 100.0f; // 100%
+
+            float filter_lifetime_months = filter_lifetime_num->state;
+            uint32_t total_filter_capacity = cadr * 24 * 30 * filter_lifetime_months;
+            if (total_filter_capacity == 0)
+                return 100.0f;
+
+            float life_left_percent = 100.0f - ((float)used_cadr_ / (float)total_filter_capacity * 100.0f);
+            if (life_left_percent < 0.0f)
+                life_left_percent = 0.0f;
+            if (life_left_percent > 100.0f)
+                life_left_percent = 100.0f;
+
+            return life_left_percent;
         }
 
         /// @brief The main loop, that is triggeed by the esphome framework automatically
         void Levoit::loop()
         {
-            static uint32_t last_check,last_check_half_sec = 0;
+            static uint32_t last_check, last_check_sec = 0;
+            static uint32_t last_check_min = 30000;
+            static uint32_t last_cadr_check = 0;
+            static uint32_t last_filter_check = 0;
             uint32_t now = millis();
-            if (now - last_check_half_sec >= 500){
-              last_check_half_sec = now;
-              // every second
-              if (filter_blinking_){
-                // toggle filter led
-                if (filter_led_on_){
-                  this->sendCommand(CommandType::setFilterLedOff);
-                  filter_led_on_ = false;
-                } else {
-                  this->sendCommand(CommandType::setFilterLedOn);
-                  filter_led_on_ = true;
-                }
-              }
+            
+            // Every minute: track CADR usage and runtime
+            if (now - last_check_min >= 60000)
+            {
+                last_check_min = now;
+                track_cadr_usage();
             }
-
-            if (now - last_check >= 10000)
-            { // 10 seconds
-              // wifi ative
+            
+            if (now - last_check_sec >= 1000)
+            {
+                // every second
+                last_check_sec = now;
+                // Handle filter LED blinking
+                if (filter_blinking_)
+                {
+                    // toggle filter led
+                    if (filter_led_on_)
+                    {
+                        this->sendCommand(CommandType::setFilterLedOff);
+                        filter_led_on_ = false;
+                    }
+                    else
+                    {
+                        this->sendCommand(CommandType::setFilterLedOn);
+                        filter_led_on_ = true;
+                    }
+                }
                 // Check WiFi status and update LED accordingly
                 auto *wifi = wifi::global_wifi_component;
                 if (wifi != nullptr)
                 {
-
                     bool is_connected = wifi->is_connected();
                     bool is_disabled = wifi->is_disabled();
                     // Determine WiFi state: connecting = not connected and not disabled
@@ -369,13 +509,34 @@ namespace esphome
                         wifi_led_solid_ = false;
                     }
                 }
+            }
+
+            // Every 5 seconds: compute and publish current CADR/hour
+            if (now - last_cadr_check >= 5000)
+            {
+                last_cadr_check = now;
+                uint32_t current_cadr_hour = this->calculate_current_cadr_per_hour();
+                this->publish_sensor(SensorType::CURRENT_CADR, current_cadr_hour);
+            }
+
+            // Every 10 seconds: publish filter life left
+            if (now - last_filter_check >= 10000)
+            {
+                last_filter_check = now;
+                float filter_left = this->calculate_filter_life_left_percent();
+                auto *se = this->sensors_[st_idx_(SensorType::FILTER_LIFE_LEFT)];
+                if (se != nullptr)
+                    se->publish_state(filter_left);
+                // Also update FILTER_LOW binary sensor
+                this->publish_binary_sensor(BinarySensorType::FILTER_LOW, filter_left < 5.0f);
+            }
+
+            if (this->timer_active_ && now - last_check >= 10000)
+            { // 10 seconds
                 // timer active?
-                if (this->timer_active_)
-                {
-                    last_check = now;
-                    ESP_LOGD(TAG, "Request status - timer");
-                    this->sendCommand(requestTimerStatus);
-                }
+                last_check = now;
+                ESP_LOGD(TAG, "Request status - timer");
+                this->sendCommand(requestTimerStatus);
             }
             // 1) Read incoming bytes into buffer_
             while (available())

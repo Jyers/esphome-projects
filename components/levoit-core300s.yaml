@@ -36,7 +36,7 @@ wifi:
 captive_portal:
 
 external_components:
-  - source: ../../../components
+  - source: ./
     components: [levoit]
 
 uart:
@@ -76,28 +76,16 @@ number:
     levoit: levoitcore300
     name: "Timer (min)"
     type: timer
-  - platform: levoit
-    levoit: levoitcore300
-    name: "Filter Months"
-    type: filter_lifetime_months
 sensor:
 
   - platform: levoit
     levoit: levoitcore300
-    name: "AQ - PM 2.5"
+    name: "PM 2.5"
     type: pm25
   - platform: levoit
     levoit: levoitcore300
     name: "AQI"
     type: aqi
-  - platform: levoit
-    levoit: levoitcore300
-    name: "Current CADR"
-    type: current_cadr
-  - platform: levoit
-    levoit: levoitcore300
-    name: "Filter %"
-    type: filter_life_left
 # Better: auto_mode_room_size_high_fan text_sensor    
 #  - platform: levoit
 #    levoit: levoitcore300
@@ -134,16 +122,6 @@ text_sensor:
     levoit: levoitcore300
     name: "Error"
     type: error_message
-button:
-  - platform: levoit
-    levoit: levoitcore300
-    name: "Filter Reset"
-    type: reset_filter_stats
-binary_sensor:
-  - platform: levoit
-    levoit: levoitcore300
-    name: "Filter Low"
-    type: filter_low
 #  Only for Vital100S and Vital200S
 #  - platform: levoit
 #    levoit: levoitcore300

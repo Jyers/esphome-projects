@@ -34,6 +34,29 @@ namespace esphome
           this->traits.set_max_value(720); // 12 hours
           this->traits.set_step(30);
           break;
+        case NumberType::FILTER_LIFETIME_MONTHS:
+          this->traits.set_device_class("duration");
+          this->traits.set_unit_of_measurement("months");
+          this->traits.set_mode(number::NumberMode::NUMBER_MODE_SLIDER);
+          this->traits.set_min_value(1);
+          this->traits.set_max_value(12);
+          this->traits.set_step(1);
+          this->set_icon("mdi:air-filter");
+          this->set_entity_category(EntityCategory::ENTITY_CATEGORY_CONFIG);
+          
+          // Setup preferences for persistent storage
+          pref_ = global_preferences->make_preference<float>(fnv1_hash("levoit_filter_months"));
+          
+          // Restore saved value or use default
+          float saved_value;
+          if (pref_.load(&saved_value)) {
+            ESP_LOGI(TAG, "Restored filter lifetime: %.0f months", saved_value);
+            this->publish_state(saved_value);
+          } else {
+            ESP_LOGI(TAG, "No saved filter lifetime, using default: 6 months");
+            this->publish_state(6.0);
+          }
+          break;
 
         default:
           break;
@@ -46,6 +69,12 @@ namespace esphome
       uint32_t state = static_cast<uint32_t>(value);
       // Optimistic update for HA UI
       this->publish_state(state);
+      
+      // Save to preferences if filter_lifetime_months
+      if (this->type_ == NumberType::FILTER_LIFETIME_MONTHS) {
+        pref_.save(&value);
+        ESP_LOGD(TAG, "Saved filter lifetime: %.0f months", value);
+      }
       
       if (!parent_)
       {

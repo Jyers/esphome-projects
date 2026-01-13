@@ -7,16 +7,18 @@ Custom ESPHome component for Levoit air purifiers (Core and Vital series) enabli
 | Model | MCU Version | Status |
 |-------|-------------|--------|
 | Levoit Vital 100S | 1.0.5 | ✅ Tested |
-| Levoit Vital 200S | - | ⚠️ Untested |
+| Levoit Vital 200S | ?.?.? | ⚠️ Untested -> should be same as Levoit Vital 100S |
+| Levoit Vital 200S PRO | ?.?.? | ⚠️ Untested -> should be same as Levoit Vital 100S |
+| Levoit Core 200S | ?.?.? | ⚠️ Untested -> comming soon!|
 | Levoit Core 300S | 2.0.11 | ✅ Tested -> with new ESP!|
-| Levoit Core 400S | 3.0.0 | ⚠️ Untested |
+| Levoit Core 400S | 3.0.0 | ✅ Tested -> with original ESP|
 
 **Requirements:** ESPHome 2025.12.5+
 
 ## Features
 
 ### Fan Control
-- Standard fan entity with multiple speed levels (1-4)
+- Standard fan entity with multiple speed levels (1-4, 3 for Core300s)
 - Preset modes for Auto, Sleep, and Manual operation
 - Pet mode (Vital series)
 - On/Off control
@@ -24,7 +26,14 @@ Custom ESPHome component for Levoit air purifiers (Core and Vital series) enabli
 ### Sensors
 - **PM2.5**: Real-time particulate matter readings (Core series)
 - **Timer Status**: Remaining time display (e.g., "5h 33 min remaining")
-- **Filter Life**: Monitoring and reset capability (planned)
+- **Current CADR**: Real-time air purification rate in m³/h (speed-dependent)
+- **Filter Life Left**: Percentage of filter lifetime remaining (0-100%)
+
+### Binary Sensors
+- **Filter Low**: Indicates when filter life drops below 5%
+
+### Buttons
+- **Reset Filter Stats**: Resets used CADR and runtime tracking, clears filter life calculation
 
 ### Configuration Options
 - **Timer**: Set duration in minutes
@@ -73,17 +82,6 @@ Keep the original ESP32 functional while adding a custom ESP32 for ESPHome contr
 - **XIAO Seeed ESP32-C3** - Budget-friendly alternative
 - Any ESP32 module with UART and sufficient GPIO pins
 
-
-
-
-
-
-
-
-
-
-
-
 ### Hardware Access
 
 Each model requires different disassembly procedures. See model-specific guides in [projects/free-levoit](../../projects/free-levoit/) for:
@@ -91,7 +89,6 @@ Each model requires different disassembly procedures. See model-specific guides 
 - Disassembly instructions
 - UART pin locations
 - Photos and wiring diagrams
-
 
 
 ### Software Installation
@@ -191,7 +188,9 @@ levoit/
     ├── switch/            # Switch entities (display, lock, etc.)
     ├── number/            # Number entities (timer, room size)
     ├── select/            # Select entities (auto mode)
-    ├── sensor/            # Sensor entities (PM2.5, etc.)
+    ├── sensor/            # Sensor entities (PM2.5, CADR, filter life)
+    ├── binary_sensor/     # Binary sensor entities (filter low status)
+    ├── button/            # Button entities (filter reset)
     └── text_sensor/       # Text sensor entities (timer display)
 ```
 
@@ -243,9 +242,84 @@ number:
       min_value: 0
       max_value: 720  # 12 hours
       step: 1
+
+sensor:
+  - platform: levoit
+    levoit_id: air_purifier
+    current_cadr:
+      name: "Current CADR"
+    filter_life_left:
+      name: "Filter Life Left"
+
+binary_sensor:
+  - platform: levoit
+    levoit_id: air_purifier
+    type: filter_low
+    name: "Filter Low"
+
+button:
+  - platform: levoit
+    levoit_id: air_purifier
+    type: reset_filter_stats
+    name: "Reset Filter Stats"
 ```
 
 For complete configuration examples, see the [free-levoit project](../../projects/free-levoit/).
+
+## Filter Life Calculation
+
+The **Filter Life Left** sensor tracks filter usage as a percentage (0-100%) based on cumulative CADR consumption.
+
+### How It Works
+
+1. **Baseline Capacity**:
+   - Model CADR (e.g., 214 m³/h for Core300S) multiplied by filter lifetime (default 12 months)
+   - Formula: `Total Capacity = CADR × 24 hours × 30 days × Filter Lifetime (months)`
+   - Example: `214 × 24 × 30 × 12 = 1,844,160 m³` for Core300S at 12 months
+
+2. **Real-Time Tracking**:
+   - Every minute, the component accumulates CADR based on current fan speed
+   - Tracks `used_cadr_` (total m³ processed) persisted to device preferences
+   - Updates `total_runtime_` (minutes fan has been on)
+
+3. **Speed-Dependent CADR**:
+   - Level 1: `CADR × 1 ÷ max_speed` (derates to ~63% in Sleep mode)
+   - Level 2: `CADR × 2 ÷ max_speed`
+   - Level 3: `CADR × 3 ÷ max_speed`
+   - Level 4: `CADR × 4 ÷ max_speed` (Core400S/Vital series only)
+
+4. **Percentage Calculation**:
+   ```
+   Filter Life % = 100 - (used_cadr ÷ Total Capacity × 100)
+   ```
+   - Clamped to 0-100% range
+   - Published every 10 seconds as a float with one decimal place
+
+5. **Binary Sensor Threshold**:
+   - **Filter Low** binary sensor activates when `Filter Life % < 5%`
+   - Useful for automations (e.g., order replacement reminders)
+
+### Resetting Filter Stats
+
+- Use the **Reset Filter Stats** button to reset `used_cadr` and `total_runtime` to 0
+- This resets the filter life percentage back to 100%
+- Persists immediately to device storage
+
+### Configuration
+
+Adjust filter lifetime expectancy via the **Filter Lifetime (months)** number entity:
+```yaml
+number:
+  - platform: levoit
+    levoit_id: air_purifier
+    filter_lifetime_months:
+      name: "Filter Lifetime (months)"
+      min_value: 1
+      max_value: 24
+      step: 1
+```
+
+Default: 12 months. Adjust based on your filter's actual rated lifespan or usage pattern.
 
 ## Development Notes
 
@@ -288,13 +362,15 @@ This component has been updated for ESPHome 2025.12.5 with the following changes
 - Migrated from deprecated `.state` to `current_option()` method
 
 ## Known Issues & TODO
-
-- [ ] WiFi LED control and status indication after connection
-- [ ] Add filter life time and current CADR sensors
-- [ ] Enable filter reset from Home Assistant
 - [ ] Implement custom sleep mode settings for Vital series
 - [ ] Model-specific room size validation based on CADR ratings
 - [ ] Verify Core 300S/400S protocol differences (MCU version dependency)
+- [x] WiFi LED control and status indication after connection
+- [x] Add filter life time and current CADR sensors
+- [x] Add filter low binary sensor (< 5% threshold)
+- [x] Add reset filter stats button
+- [x] Enable filter reset from Home Assistant
+- [x] Enable filter reset from Device (Long press sleep)
 - [x] Add appropriate icons for entities
 - [x] Test compatibility with ESPHome 2025.12+ (preset mode API changes)
 - [x] Update to ESPHome 2025.12.5 (completed)

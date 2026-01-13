@@ -12,8 +12,8 @@ namespace esphome
             VITAL200S = 1,
             CORE300S = 2,
             CORE400S = 3,
-            //CORE200S = 4
-            //CORE600s = 5
+            CORE200S = 4,
+            CORE600S = 5
         };
 
         enum class SwitchType : uint8_t
@@ -23,7 +23,7 @@ namespace esphome
             LIGHT_DETECT = 2,
             QUICK_CLEAN = 3,
             WHITE_NOISE = 4,
-            DAYTIME_ENABLED = 5,
+            DAYTIME_ENABLED = 5
         };
         // SwitchType aliases (flat namespace)
         static constexpr SwitchType DISPLAY = SwitchType::DISPLAY;
@@ -40,7 +40,9 @@ namespace esphome
             QUICK_CLEAN_MIN = 2,
             WHITE_NOISE_MIN = 3,
             SLEEP_MODE_MIN = 4,
-
+            FILTER_LIFETIME_MONTHS = 5,
+            USED_CADR = 6,
+            TOTAL_RUNTIME = 7,
         };
         // NumberType aliases (flat namespace)
         static constexpr NumberType TIMER = NumberType::TIMER;
@@ -48,6 +50,9 @@ namespace esphome
         static constexpr NumberType QUICK_CLEAN_MIN = NumberType::QUICK_CLEAN_MIN;
         static constexpr NumberType WHITE_NOISE_MIN = NumberType::WHITE_NOISE_MIN;
         static constexpr NumberType SLEEP_MODE_MIN = NumberType::SLEEP_MODE_MIN;
+        static constexpr NumberType FILTER_LIFETIME_MONTHS = NumberType::FILTER_LIFETIME_MONTHS;
+        static constexpr NumberType USED_CADR = NumberType::USED_CADR;
+        static constexpr NumberType TOTAL_RUNTIME = NumberType::TOTAL_RUNTIME;
 
         enum class SensorType : uint8_t
         {
@@ -55,12 +60,26 @@ namespace esphome
             PM25 = 1,
             TIMER_CURRENT = 2,
             EFFICIENCY_COUNTER = 3,
+            CURRENT_CADR = 4,
+            FILTER_LIFE_LEFT = 5,
         };
         // NumberType aliases (flat namespace)
         static constexpr SensorType AQI = SensorType::AQI;
         static constexpr SensorType PM25 = SensorType::PM25;
         static constexpr SensorType TIMER_CURRENT = SensorType::TIMER_CURRENT;
         static constexpr SensorType EFFICIENCY_COUNTER = SensorType::EFFICIENCY_COUNTER;
+        static constexpr SensorType CURRENT_CADR = SensorType::CURRENT_CADR;
+        static constexpr SensorType FILTER_LIFE_LEFT = SensorType::FILTER_LIFE_LEFT;
+
+        enum class BinarySensorType : uint8_t {
+            FILTER_LOW = 0,
+        };
+        static constexpr BinarySensorType FILTER_LOW = BinarySensorType::FILTER_LOW;
+
+        enum class ButtonType : uint8_t {
+            RESET_FILTER_STATS = 0,
+        };
+        static constexpr ButtonType RESET_FILTER_STATS = ButtonType::RESET_FILTER_STATS;
         
         enum class TextSensorType : uint8_t
         {

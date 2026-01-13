@@ -5,6 +5,8 @@ I hated the fact that i had to use the cloud hosted by levoit and wanted fully H
 
 Here is a list of all 4 models, running with esphome, Core300/400s do not need a hardware hack, only desaaembly to flash new firmware, the Mini and the LV PUR 131s need some extra hardware and hacking.
 
+* [Generic Levoit Esphome Component](../../components/levoit/), full custom esphome based firmware
+
 * [levoit-core300s](./projects/levoit-core300s), (esphome) - Custom Firmware
 * [levoit-core400s](./projects/levoit-core400s), (esphome) - Custom Firmware
 * [levoit-lv-pur131s](./projects/levoit-lv131s/), (esphome, pcb hack, extra hardware) - Custom Firmware + better MCU and Sensor, plays Doom!

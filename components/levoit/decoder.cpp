@@ -116,7 +116,7 @@ namespace esphome
         if (model == ModelType::CORE300S || model == ModelType::CORE400S)
         {
           // Core models: payload is 0x30 0x40 -> Core 200s/300s. 0x1B 0x40 -> Core 400s
-          if (msg_type == 0x22 && (ptype0 == 0x30 && ptype1 == 0x40|| ptype0 == 0x1B && ptype1 == 0x40))
+          if (msg_type == 0x22 && (ptype0 == 0x30 && ptype1 == 0x40|| ptype0 == 0xB0 && ptype1 == 0x40))
           {
             decode_core_status(self, model, payload, payload_len);
           }

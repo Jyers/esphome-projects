@@ -7,9 +7,9 @@ DEPENDENCIES = ["uart"]
 CODEOWNERS = ["@tuct"]
 
 CONF_LEVOIT_MODEL = "model"
-VALID_MODELS = ["VITAL100S", "VITAL200S","CORE300S", "CORE400S"] 
+VALID_MODELS = ["VITAL100S", "VITAL200S","CORE300S", "CORE400S"] # open: CORE200S, CORE600s, same name: VITAL200S PRO == VITAL200S
 
-CONF_LEVOIT_ID = "levoit"
+CONF_LEVOIT_ID = "levoit" 
 
 levoit_ns = cg.esphome_ns.namespace(CONF_LEVOIT_ID)
 Levoit = levoit_ns.class_("Levoit", cg.Component, uart.UARTDevice)

@@ -27,13 +27,23 @@ namespace esphome
           this->set_entity_category(EntityCategory::ENTITY_CATEGORY_DIAGNOSTIC);
           break;
         case SensorType::PM25:
-          //this->traits.set_mode(sensor::SensorMode::NUMBER_MODE_SLIDER);  // if you want
           this->set_device_class("pm25");
           this->set_unit_of_measurement("µg/m³");
           break;
         case SensorType::AQI:
-          //this->traits.set_mode(sensor::SensorMode::NUMBER_MODE_SLIDER);  // if you want
           this->set_device_class("aqi");
+          this->set_icon("mdi:molecule");
+          break;
+        case SensorType::CURRENT_CADR:
+          this->set_device_class("volume_flow_rate");
+          this->set_entity_category(EntityCategory::ENTITY_CATEGORY_DIAGNOSTIC);
+          this->set_unit_of_measurement("m³/h");
+          this->set_icon("mdi:air-filter");
+          break;
+        case SensorType::FILTER_LIFE_LEFT:
+          this->set_unit_of_measurement("%");
+          this->set_icon("mdi:air-filter");
+          this->set_accuracy_decimals(1);
           break;
         default:
           break;

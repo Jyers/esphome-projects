@@ -20,6 +20,7 @@ TYPE_MAP = {
     "quick_clean_fan_level": NumberType.QUICK_CLEAN_FAN_LEVEL,
     "white_noise_fan_level": NumberType.WHITE_NOISE_FAN_LEVEL,
     "sleep_mode_fan_mode_level": NumberType.SLEEP_MODE_FAN_MODE_LEVEL,
+    "filter_lifetime_months": NumberType.FILTER_LIFETIME_MONTHS,
 }
   
 
@@ -53,7 +54,6 @@ async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     # inject into config BEFORE register_number
     config = dict(config)
-
 
     await number.register_number(
         var,

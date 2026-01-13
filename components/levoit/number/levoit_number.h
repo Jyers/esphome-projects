@@ -1,5 +1,6 @@
 #pragma once
 #include "esphome/components/number/number.h"
+#include "esphome/core/preferences.h"
 #include "../types.h"
 
 namespace esphome {
@@ -19,6 +20,7 @@ class LevoitNumber :  public number::Number, public Component {
   void control(float value) override;
   Levoit *parent_{nullptr};
   NumberType type_{NumberType::TIMER};
+  ESPPreferenceObject pref_;
 };
 
 }  // namespace levoit
