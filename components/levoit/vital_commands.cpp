@@ -1,5 +1,6 @@
 #include "vital_commands.h"
 #include "levoit.h"
+#include "number/levoit_number.h"
 #include "esphome/core/log.h"
 
 namespace esphome
