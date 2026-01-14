@@ -13,6 +13,7 @@ See [Levoit Component](../../../components/levoit/README.md) for complete compon
 | Model | Core 400S |
 | Tested MCU FW | 3.0.0 (status: untested) |
 | ESP | ESP32-SOLO-1C |
+| Board | CORE400S Ctrl V1.2 |
 | Speeds | 4 levels |
 | CADR (spec) | 415 m³/h |
 | ESPHome | 2025.12.5+ |
