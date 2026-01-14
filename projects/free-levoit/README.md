@@ -42,6 +42,11 @@ Not my projects, but worth checking out:
 * https://github.com/acvigue/esphome-levoit-air-purifier
 
 
+Helpfull links:
+* [How to open Levoit's](https://www.youtube.com/watch?v=6wxHpUVcGFc) 
+* [How to open Levoit's smaller](https://www.youtube.com/watch?v=rAjLNR1jQkw)
+
+
 
 # Levoit MCU ⇄ ESP (Core 200/300/400, Vital 100/200)
 
