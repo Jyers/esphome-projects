@@ -1,22 +1,27 @@
-# Smartified Levoit Mini
+# Levoit Mini - Custom PCB & ESPHome Firmware
 
-Custom PCB, 3D Printed Parts and Firmware (esphome based) to smartify the Levoit Mini Air Purifier
-![a](./photos/da_06.jpg)
+Custom PCB, 3D-printed parts, and ESPHome-based firmware to add smart home integration to the Levoit Mini Air Purifier without destroying the original device.
 
+![Levoit Mini Custom Build](./photos/da_06.jpg)
 
 ## Features
-* Custom Firmware and PCB for the Levoit Mini - Non destructive and fully reversable.
-* Home Assistant integration as Fan
-  * 3 Speeds (33%, 66%, 100%)
-  * Presets: Manual, Sleep(Speed 25%), Auto(Manual, 50%, requires PM based AQI sensor) 
-* Filter Lifetime, based on current CFM and runtime
-* Filter Lifetime can be configured between 1-12 Months, based on the air pollution you have.
-* Fan Speed, Current and avg. CFM 
 
-![Controls and Sensors](./photos/ha_one.png)
-![Config and Diagnostics ](./photos/ha_two.png)
+* **Non-Destructive Modification** – Fully reversible; original PCB is completely bypassed, not removed
+* **Home Assistant Integration** – Native fan integration with multiple speed presets
+  * 3 speeds: 33%, 66%, 100%
+  * Manual, Sleep (25% speed), and Auto (requires PM2.5 sensor for AQI feedback)
+  * Configurable filter lifetime (1-12 months based on usage/pollution)
+* **Performance Monitoring**
+  * Real-time fan speed and CFM (cubic feet per minute)
+  * Average CFM calculation
+  * Filter replacement reminders
+* **Compact & Custom** – Custom PCB with built-in components; 3D-printed enclosure parts for seamless integration
 
-## Usage instructions
+![Home Assistant Dashboard - Controls](./photos/ha_one.png)
+![Home Assistant Dashboard - Diagnostics](./photos/ha_two.png)
+
+## Usage Instructions
+
 
 Click Button One time, for at least 1/4s to turn on and cycle speeds.
 
@@ -69,27 +74,30 @@ Add some solder to the bad with holes and then place the part on top and add sol
 
 ### 3D Printed Parts
 
-### Button and LCD assembly
-* Wire the LCD and the Button as shown here, use JST-XH connectors
-* Insert the Button and slide the button holder in. Use hot or super glue to fix.
-* use hot glue to glue the LCD in, i recommend doing this with the lcd on, so that you can find the correct position.
+**Button & LCD Assembly**
 
+* Wire the LCD and button together using JST-XH connectors as shown in schematics
+* Insert the button into the button holder and slide into place; secure with hot glue or super glue
+* Glue the LCD into its mounting bracket using hot glue—**recommend powering on during gluing** to verify correct positioning
 
+### Device Assembly
 
+* Insert the replacement top housing (larger custom-printed part) and connect the new PCB to the device's internal connectors:
+  ![PCB installed in device](./photos/da_05.jpg)
 
-### Assembly
+* Cross-reference the original connector positions and replicate the same connections:
+  ![Original connector reference](./photos/da_04.jpg)
 
-* Insert the replacment top part (bigger one) and connect the new PCB
+* Connect the LCD and button assembly to the main PCB
 
-  ![a](./photos/da_05.jpg)
+* Position the button/LCD module into the device: the button should face the Levoit logo; slight twisting motion helps snap it into place
 
-* Check the strange use of the original connectors and connect the same way!
+* **Verification:** Device should respond to button presses and LCD should display correctly
 
-  ![a](./photos/da_04.jpg)
-* Connect LCD and Button
-* Insert the Button and LCD assemply, check orientation, Button should face the Levoit Logo. Slightly twist the part to find the correct position (snap).
+### Leftover Original Parts
 
+![Original components not needed](./photos/leftovers.jpg)
 
+The original ESP32 and peripheral components from the factory PCB are no longer needed.
 
-#### Left over parts
 ![a](./photos/leftovers.jpg)

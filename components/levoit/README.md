@@ -7,11 +7,12 @@ Custom ESPHome component for Levoit air purifiers (Core and Vital series) enabli
 | Model | MCU Version | Status |
 |-------|-------------|--------|
 | Levoit Vital 100S | 1.0.5 | ✅ Tested |
+| Levoit Core 300S | 2.0.11 | ✅ Tested -> with new ESP!|
+| Levoit Core 400S | 3.0.0 | ✅ Tested -> with original ESP|
 | Levoit Vital 200S | ?.?.? | ⚠️ Untested -> should be same as Levoit Vital 100S |
 | Levoit Vital 200S PRO | ?.?.? | ⚠️ Untested -> should be same as Levoit Vital 100S |
 | Levoit Core 200S | ?.?.? | ⚠️ Untested -> comming soon!|
-| Levoit Core 300S | 2.0.11 | ✅ Tested -> with new ESP!|
-| Levoit Core 400S | 3.0.0 | ✅ Tested -> with original ESP|
+
 
 **Requirements:** ESPHome 2025.12.5+
 
@@ -110,17 +111,31 @@ external_components:
 external_components:
   - source:
       type: git
-      url: https://github.com/tuct/esphome_external_components
+      url: https://github.com/tuct/esphome-projects
       ref: main
     components: [levoit]
 ```
+
+#### Step 2: Set esp32 variant
+
+For Core 300/400s and Levoit 100s/200s:
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_FREERTOS_UNICORE: y
+
+for custom esp, set accordingly 
+
 
 #### Step 2: Configure UART
 Match your hardware connections:
 ```yaml
 uart:
-  tx_pin: GPIO4   # ESP TX → MCU RX
-  rx_pin: GPIO5   # ESP RX → MCU TX
+  tx_pin: GPIO17   # ESP TX → MCU RX for original ESP32!
+  rx_pin: GPIO16   # ESP RX → MCU TX for original ESP32!
   baud_rate: 115200
 ```
 

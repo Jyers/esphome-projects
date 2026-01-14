@@ -1,28 +1,28 @@
-
 esphome:
-  name: levoit-core300s-s3
-  platformio_options:
-    build_flags: -DBOARD_HAS_PSRAM
-    board_build.arduino.memory_type: qio_opi
-    board_build.f_flash: 80000000L
-    board_build.flash_mode: qio 
+  name: levoit-vital100s
 
 esp32:
-  board: esp32-s3-devkitc-1
+  board: az-delivery-devkit-v4
   framework:
     type: esp-idf
+# original ESP32-SOLO-1C!
+#esp32:
+#  board: esp32dev
+#  framework:
+#    type: esp-idf
+#    sdkconfig_options:
+#      CONFIG_FREERTOS_UNICORE: y
 
 # Enable logging
-logger:  
-  level: VERBOSE
+logger:
 
+# Enable Home Assistant API
 api:
-  encryption:
-    key: !secret api_key
+  password: "aaa"
 
 ota:
   - platform: esphome
-    password: !secret ota_password
+    password: "aaaaaaaa"
 
 wifi:
   ssid: "mista3"
@@ -34,27 +34,25 @@ wifi:
     password: "1ZjzfekrSvRt"
 
 captive_portal:
-
 external_components:
-  - source: ../../../components
+  - source: ../../components
     components: [levoit]
 
 uart:
   - id: uart_mcu2esp
     tx_pin: 
-      number: GPIO04
+      number: GPIO17
       inverted: false
     rx_pin: 
-      number: GPIO05
+      number: GPIO16
       inverted: false
     baud_rate: 115200
-
 levoit:
-  id: levoitcore300
-  model: CORE300S
+  id: levoitvital100
+  model: "VITAL100S"
 fan:
   - platform: levoit
-    levoit: levoitcore300
+    levoit: levoitvital100
     name: "Fan"
     id: levoit_fan1  
 switch:

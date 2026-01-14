@@ -1,31 +1,30 @@
-# Levoit LV-PUR131S 
+# Levoit LV-PUR 131S - Custom Firmware (ESPHome)
 
-This model is not sold anymore and often suffered from a sudden death syndrom!
+This model is discontinued and known for reliability issues (sudden shutdown syndrome). This project upgrades the original hardware with modern components while maintaining form factor compatibility.
 
-MCU upgraded to ESP32-C3, Sensor to PM5003.
+**Hardware Upgrades:**
+- MCU: Original ESP12F → Xiao Seeed ESP32-C3
+- Sensor: Original PM1003 → PM5003 (significantly improved air quality detection)
 
-I wanted to keep my working  ESP12F but i fried it during my hack... so i replaced it with an xiao seeed esp32-c3.
-
-The PM1003 sensor that is used originally, really sucks and i had some spare PM5003 at home, so i decided to upgrade the sensor as well. Code for the original PM1003 is still here but commented out.
-
+The original PM1003 sensor was unreliable; spare PM5003 components were substituted for better performance. Legacy PM1003 code is preserved as commented reference.
 
 ## Features
 
-- Home Assistant without Cloud!
-  - Fully Fan support with 3 Modes
-  - Filter Life-Time tracking, based on actual usage
-- All features from original
-    - 3 Manual Speeds
-    - Timer 30min to 12h
-    - Sleep and Auto Mode
-    - Display On/Off
-    - Reset Filter Button (Hold for 5s until you hear a beep than release to reset the filter, also possible via HA)
-- Can play doom! (Song) (Hold Sleep for 4sec)
-- Sound On/Off and if On, only if buttons are pressed, not if remote controled!
-- Improved PM Sensor PM5003 vs PM1003 (really sucks!)
+* **Home Assistant Integration** (no cloud required)
+  * Full fan support with 3 manual speeds + Auto/Sleep modes
+  * Filter lifetime tracking based on actual runtime and usage
+  * Display on/off control and brightness
+  * Reset filter button (hold 5s until beep, or trigger via HA)
+  * Timer support (30 minutes to 12 hours)
 
-![new sensor](./images/home_assistant.png))
-![new sensor](./images/home_assistant_2.png)
+* **Unique Features**
+  * Hidden Doom! easter egg (hold Sleep button 4 seconds)
+  * Configurable sound feedback (buttons only, not remote control)
+  * Improved PM2.5 sensor (PM5003 vs original PM1003)
+
+![Home Assistant Dashboard](./images/home_assistant.png)
+![Home Assistant Dashboard (continued)](./images/home_assistant_2.png)
+
 
 
 
@@ -33,22 +32,22 @@ The PM1003 sensor that is used originally, really sucks and i had some spare PM5
 
 [![Link to Video](./images/video.png)](https://www.youtube.com/watch?v=NGHwQ--Szvg)
 
-## Sudden Death
-Here are some links to youtube videos with some fixes:
+## Reliability Issues - "Sudden Death" Syndrome
 
-- https://www.reddit.com/r/AirPurifiers/comments/1idc5nu/levoit_air_purifiers_manufacturing_defect/
-- https://www.youtube.com/watch?v=-IfPcGs717E
-- https://www.youtube.com/watch?v=RJjbAqp-lw4
+This model experienced manufacturing defects leading to premature failures. Resources:
 
+* [Reddit Discussion - Manufacturing Defect](https://www.reddit.com/r/AirPurifiers/comments/1idc5nu/levoit_air_purifiers_manufacturing_defect/)
+* [YouTube - Diagnosis and Repair](https://www.youtube.com/watch?v=-IfPcGs717E)
+* [YouTube - Component-Level Analysis](https://www.youtube.com/watch?v=RJjbAqp-lw4)
 
-Looks like some overvoltage getting to the MCU / PCB. In my case a diode was fried as well as the main MCU (ESP12F).
-![new sensor](./images/burned.jpg)
-Lukily i got a replacement unit from Levoit under warranty!
-This allowed me to reverse engineer the PCB and create an esphome based firmware.
+**Root Cause:** Overvoltage transients reaching the MCU/PCB, typically burning the voltage regulation diode and main microcontroller.
 
-## The Hack 
+**Experience:** The original ESP12F in this device was destroyed; diode damage was also observed. A replacement unit obtained under warranty enabled reverse engineering and development of this custom ESPHome firmware.
+
+## Hardware Upgrade Project ("The Hack")
 
 ### Required Parts
+
 
 - Broken or working Levoit LV-PUR131S
 - Xiao seeed esp32-c3
@@ -98,25 +97,32 @@ Soldering is a bit hard/wired, some protective film seems to be applied.
   ![new sensor](./images/new_sensor_4.jpg)
   ![pm5003 pinout](./images/PMS5003-PINOUT.jpg)
 - Solder the wires for the new MCU
-  ![pcb siwith wiresde](./images/board_wired2.jpg)
-  D5 is not required if PM5003 is used!
-- Flash Firmware, adopt secrets.yaml with esphome, min version 2026.01
+  ![PCB with wires attached](./images/board_wired2.jpg)
+  Note: D5 resistor is not required if PM5003 sensor is used.
+
+* Flash Firmware: configure `secrets.yaml` with WiFi and Home Assistant encryption key
+  * Requires ESPHome 2026.01+
 
 ### Assembly
 
-- Connect MCU to PCB, secure with hot glue
-  ![new sensor](./images/pcb_hacked_mounted.jpg)
-  ![new sensor](./images/pcb_hacked_mounted_2.jpg)
-- Ensure the cable to the bottom is on the right side, and the sensor cables are at the top
-  ![new sensor](./images/assembly_0.jpg)
-- Insert the Fan carfully, it need to be fully at the top, do not pinch any cables
-  ![new sensor](./images/assembly_1.jpg)
-- Connect MCU to power board and connect power again
-  ![new sensor](./images/assembly_2.jpg)
-- Close the back lid and screw in all screws!
-  ![new sensor](./images/assembly_3.jpg)
+* Connect the new MCU to the PCB and secure with hot glue:
+  ![MCU mounted on PCB](./images/pcb_hacked_mounted.jpg)
+  ![MCU detail view](./images/pcb_hacked_mounted_2.jpg)
 
-Done
+* Position cables correctly: bottom cable on right side, sensor cables at top
+  ![Cable routing](./images/assembly_0.jpg)
+
+* Carefully insert the fan unit—ensure it sits fully at the top and no cables are pinched
+  ![Fan assembly step 1](./images/assembly_1.jpg)
+
+* Connect the MCU back to power board and verify power connections
+  ![Final power connections](./images/assembly_2.jpg)
+
+* Close the rear lid and screw in all fasteners
+  ![Lid reassembly](./images/assembly_3.jpg)
+
+**Done!** Your upgraded LV-PUR 131S is ready for use.
+
 
 
 

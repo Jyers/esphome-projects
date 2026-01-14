@@ -1,34 +1,44 @@
-# Levoit Core 300s Custom Firmware
+# Levoit Core 300S - Custom Firmware (ESPHome)
 
-![image info](./photos/UpdatedUiInHa.png)
-![image info](./photos/fan.png)
+![Updated UI in Home Assistant](./photos/UpdatedUiInHa.png)
+![Core 300S Fan](./photos/fan.png)
 
-I started using this [implenetation](https://github.com/acvigue/esphome-levoit-air-purifier), but it crashed with some freeRTos errors, so i switched to [this one.](https://github.com/mulcmu/esphome-levoit-core300s)
+Started from community projects ([acvigue](https://github.com/acvigue/esphome-levoit-air-purifier), [mulcmu](https://github.com/mulcmu/esphome-levoit-core300s)) and evolved into a generic Levoit ESPHome component for Core/Vital models.
+
+See [Levoit Component](../../../components/levoit/README.md) for complete component documentation.
+
+## Quick Facts
+
+| Item | Value |
+| --- | --- |
+| Model | Core 300S |
+| Tested MCU FW | 2.0.11 |
+| ESPHome | 2025.12.5+ |
+| Speeds | 3 levels |
+| CADR (spec) | 214 m³/h |
+| Entities | Fan (manual/auto/sleep), Current CADR, Filter Life Left, Filter Low (binary), Reset Filter Stats (button) |
 
 
 ## Features
 
-* Fan component with modes (Manual, Auto, Sleep)
-* Display current and avg CFM value
-* Filter life time 
-  * Tracking based on current CFM value
-  * Configurable via Home Assistant (1-12 Months)
-  * Reset via Home Assistant
+* Fan component with modes (Manual, Auto, Sleep) and correct 3-speed model limits
+* Current CADR sensor (m³/h), updated every few seconds; Filter Life Left (%) sensor
+* Filter Low binary sensor (<5%)
+* Reset Filter Stats button (resets CADR/runtime counters)
+* Filter lifetime configurable (months), tracked from runtime and speed
 * Display run time in Home Assistant
 
 ## Changes to [original](https://github.com/mulcmu/esphome-levoit-core300s)
 
-* Added Fan component, so that i can use it with my fan group ;)
-  * Preset Modes are part of Fan 
-* Added Filter Life time based on info from below
-  * Filter Life Time configurable between 1-12 months
-  * Based on CFM per Mode and Runtime, Max Hours = 141CFM*24*30* Filter Life time (months)
-  * Filter Led works
-  * Reset Filter implemented
+* Added ESPHome Fan component with preset modes
+* Added CADR-based Filter Life tracking (configurable lifetime months)
+* Added Filter Low binary sensor and Reset Filter Stats button
+* Filter LED handling and WiFi LED behavior fixed
 * Removed BLE
 
 
 Supported / Tested MCU Version: 2.0.11
+ESPHome: 2025.12.5+
 
 ## Disassembly
 
@@ -59,33 +69,23 @@ Rename `secrets-example.yaml` to `secrets.yaml` and set your wifi and encryption
 
 Adopt device name if needed in `core300s.yaml` (multiple units!)
 
+See [Levoit Component](../../../components/levoit/README.md) for more details! -> adopt esp32 to used esp32!
+
 ### Compile and Install New Firmware
 
 ```
-esphome run core300s.yaml
+esphome run levoit-core300s.yaml
 ```
-  
-& reassemble, enjoy :)
 
-#### In case you want to flash back original FW
+Reassemble and enjoy!
 
-```
+#### Restore Original Firmware (if needed)
+
+```bash
 esptool erase_flash
 esptool write_flash 0x00 levoit.bin
 ```
 
 
-### Filter Life:
 
-Manufacturer lists the filter life at 6 to 8 months and provided clean air deliver rates (CADR) for the different fan modes.
 
-| Fan Speed | CADR    |
-| --------- | ------- |
-| Sleep     | 37 CFM  |
-| Low       | 60 CFM  |
-| Med       | 80 CFM  |
-| High      | 141 CFM |
-
-Filter lifetime air volume will be estimated based on user provided number of months and 24h operation on High.  The actual air volume through the filter will be estimated based actual runtime and volume for each fan speed.
-
-Filter state sensor will provide a remaining lifetime percent.  Filter service interval will also be selectable and tracked.  Filter service is basically just to vacuum pre-filter.
