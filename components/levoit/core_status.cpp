@@ -83,7 +83,7 @@ namespace esphome
       if (model == ModelType::CORE300S)
       {
         display_on = payload[6] != 0;
-        fan_speed = payload[8];
+        fan_speed = payload[5]; // byte 8 for CORE300S with 2.0.11 fw but 5 also works, not updated during auto mode
       }
       else if (model == ModelType::CORE400S)
       {

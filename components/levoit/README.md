@@ -9,14 +9,14 @@ Custom ESPHome component for Levoit air purifiers (Core and Vital series) enabli
 | Model | MCU Version | Status |
 |-------|-------------|--------|
 | Levoit Vital 100S | 1.0.5 | ✅ Tested |
-| Levoit Core 300S | 2.0.11 | ✅ Tested -> with new ESP!|
+| Levoit Core 300S | 2.0.7, 2.0.11 | ✅ Tested -> with new ESP!|
 | Levoit Core 400S | 3.0.0 | ✅ Tested -> with original ESP|
 | Levoit Vital 200S | ?.?.? | ⚠️ Untested -> should be same as Levoit Vital 100S |
 | Levoit Vital 200S PRO | ?.?.? | ⚠️ Untested -> should be same as Levoit Vital 100S |
 | Levoit Core 200S | ?.?.? | ⚠️ Untested -> comming soon!|
 
 
-**Requirements:** ESPHome 2025.12.5+
+**Requirements:** ESPHome 2026.01.2+
 
 ## Features
 
