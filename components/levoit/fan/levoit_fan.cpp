@@ -2,7 +2,6 @@
 #include "../levoit.h"
 #include "esphome/core/log.h"
 #include <set>
-#include <string>
 
 namespace esphome
 {
@@ -83,7 +82,7 @@ namespace esphome
             // Track current values
             const bool cur_state = this->state;
             const int cur_speed = this->speed;
-            std::string cur_preset = this->get_preset_mode();
+            esphome::StringRef cur_preset = this->get_preset_mode();
 
             // ---- power ----
             if (call.get_state().has_value())
@@ -110,7 +109,7 @@ namespace esphome
 
             // ---- preset/mode ----
             const auto preset = call.get_preset_mode();
-            if (preset != nullptr && (cur_preset == nullptr || std::strcmp(cur_preset, preset) != 0))
+            if (preset != nullptr && (cur_preset.empty() || cur_preset != preset))
             {
                 // Sync base fan preset state
                 this->set_preset_mode_(preset);
@@ -164,7 +163,7 @@ namespace esphome
             if (preset != nullptr)
             {
                 ESP_LOGD(TAG, "Device mode %d maps to preset '%s'", mode, preset);
-                std::string cur = this->get_preset_mode();
+                esphome::StringRef cur = this->get_preset_mode();
                 if (cur.empty() || cur != preset)
                 {
                     dirty = true;
