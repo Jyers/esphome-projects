@@ -42,7 +42,7 @@ See [Levoit Component](../../../components/levoit/README.md) for complete compon
 
 
 Supported / Tested MCU Version: 2.0.11
-ESPHome: 2025.12.5+
+ESPHome: 2026.1.2+
 
 ## Disassembly
 

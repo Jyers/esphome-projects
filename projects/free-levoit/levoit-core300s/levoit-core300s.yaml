@@ -1,6 +1,7 @@
 
 esphome:
   name: levoit-core300s-s3
+  # remove if you use original ESP32-SOLO-1C!
   platformio_options:
     build_flags: -DBOARD_HAS_PSRAM
     board_build.arduino.memory_type: qio_opi
@@ -13,6 +14,8 @@ esp32:
     type: esp-idf
     
 # original ESP32-SOLO-1C!
+#esphome:
+#  name: levoit-core300s-s3
 #esp32:
 #  board: esp32dev
 #  framework:
@@ -39,7 +42,7 @@ wifi:
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "Levoit-Vital100S"
-    password: !secret ap_password
+    password: !secret wifi_ap_password
 
 captive_portal:
 
