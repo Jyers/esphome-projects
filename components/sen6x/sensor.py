@@ -39,8 +39,8 @@ DEPENDENCIES = ["i2c"]
 AUTO_LOAD = ["sensirion_common"]
 
 sen6x_ns = cg.esphome_ns.namespace("sen6x")
-SEN5XComponent = sen6x_ns.class_(
-    "SEN5XComponent", cg.PollingComponent, sensirion_common.SensirionI2CDevice
+SEN6XComponent = sen6x_ns.class_(
+    "SEN6XComponent", cg.PollingComponent, sensirion_common.SensirionI2CDevice
 )
 
 
@@ -51,12 +51,19 @@ CONF_INDEX_OFFSET = "index_offset"
 CONF_LEARNING_TIME_GAIN_HOURS = "learning_time_gain_hours"
 CONF_LEARNING_TIME_OFFSET_HOURS = "learning_time_offset_hours"
 CONF_NORMALIZED_OFFSET_SLOPE = "normalized_offset_slope"
+CONF_SLOT = "slot"
+CONF_TEMPERATURE_ACCELERATION = "temperature_acceleration"
+CONF_K = "k"
+CONF_P = "p"
+CONF_T1 = "t1"
+CONF_T2 = "t2"
 CONF_NOX = "nox"
 CONF_STD_INITIAL = "std_initial"
 CONF_TIME_CONSTANT = "time_constant"
 CONF_VOC = "voc"
 CONF_VOC_BASELINE = "voc_baseline"
 CONF_CO2 = "co2"
+CONF_HCHO = "hcho"
 
 
 # Actions
@@ -97,7 +104,7 @@ def float_previously_pct(value):
 CONFIG_SCHEMA = (
     cv.Schema(
         {
-            cv.GenerateID(): cv.declare_id(SEN5XComponent),
+            cv.GenerateID(): cv.declare_id(SEN6XComponent),
             cv.Optional(CONF_PM_1_0): sensor.sensor_schema(
                 unit_of_measurement=UNIT_MICROGRAMS_PER_CUBIC_METER,
                 icon=ICON_CHEMICAL_WEAPON,
@@ -144,6 +151,11 @@ CONFIG_SCHEMA = (
                 device_class=DEVICE_CLASS_CARBON_DIOXIDE,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
+            cv.Optional(CONF_HCHO): sensor.sensor_schema(
+                unit_of_measurement="ppb",
+                accuracy_decimals=0,
+                state_class=STATE_CLASS_MEASUREMENT,
+            ),
             cv.Optional(CONF_STORE_BASELINE, default=True): cv.boolean,
             cv.Optional(CONF_VOC_BASELINE): cv.hex_uint16_t,
             cv.Optional(CONF_TEMPERATURE): sensor.sensor_schema(
@@ -162,11 +174,20 @@ CONFIG_SCHEMA = (
             ),
             cv.Optional(CONF_TEMPERATURE_COMPENSATION): cv.Schema(
                 {
-                    cv.Optional(CONF_OFFSET, default=0): cv.float_,
+                    cv.Optional(CONF_OFFSET, default=0): cv.float_range(-163.84, 163.835),
                     cv.Optional(CONF_NORMALIZED_OFFSET_SLOPE, default=0): cv.All(
-                        float_previously_pct, cv.float_
+                        float_previously_pct, cv.float_range(-3.2768, 3.2767)
                     ),
-                    cv.Optional(CONF_TIME_CONSTANT, default=0): cv.int_,
+                    cv.Optional(CONF_TIME_CONSTANT, default=0): cv.int_range(0, 65535),
+                    cv.Optional(CONF_SLOT, default=0): cv.int_range(0, 4),
+                }
+            ),
+            cv.Optional(CONF_TEMPERATURE_ACCELERATION): cv.Schema(
+                {
+                    cv.Optional(CONF_K, default=0): cv.float_range(0, 6553.5),
+                    cv.Optional(CONF_P, default=0): cv.float_range(0, 6553.5),
+                    cv.Optional(CONF_T1, default=0): cv.float_range(0, 6553.5),
+                    cv.Optional(CONF_T2, default=0): cv.float_range(0, 6553.5),
                 }
             )
         }
@@ -182,6 +203,7 @@ SENSOR_MAP = {
     CONF_PM_10_0: "set_pm_10_0_sensor",
     CONF_VOC: "set_voc_sensor",
     CONF_NOX: "set_nox_sensor",
+    CONF_HCHO: "set_hcho_sensor",
     CONF_TEMPERATURE: "set_temperature_sensor",
     CONF_HUMIDITY: "set_humidity_sensor",
     CONF_CO2: "set_co2_sensor",
@@ -235,19 +257,30 @@ async def to_code(config):
                 config[CONF_TEMPERATURE_COMPENSATION][CONF_OFFSET],
                 config[CONF_TEMPERATURE_COMPENSATION][CONF_NORMALIZED_OFFSET_SLOPE],
                 config[CONF_TEMPERATURE_COMPENSATION][CONF_TIME_CONSTANT],
+                config[CONF_TEMPERATURE_COMPENSATION][CONF_SLOT],
             )
         )
+        if CONF_TEMPERATURE_ACCELERATION in config:
+            cfg = config[CONF_TEMPERATURE_ACCELERATION]
+            cg.add(
+                var.set_temperature_acceleration(
+                    cfg[CONF_K],
+                    cfg[CONF_P],
+                    cfg[CONF_T1],
+                    cfg[CONF_T2],
+                )
+            )
 
 
-SEN5X_ACTION_SCHEMA = maybe_simple_id(
+SEN6X_ACTION_SCHEMA = maybe_simple_id(
     {
-        cv.Required(CONF_ID): cv.use_id(SEN5XComponent),
+        cv.Required(CONF_ID): cv.use_id(SEN6XComponent),
     }
 )
 
 
 @automation.register_action(
-    "sen6x.start_fan_autoclean", StartFanAction, SEN5X_ACTION_SCHEMA
+    "sen6x.start_fan_autoclean", StartFanAction, SEN6X_ACTION_SCHEMA
 )
 async def sen54_fan_to_code(config, action_id, template_arg, args):
     paren = await cg.get_variable(config[CONF_ID])
