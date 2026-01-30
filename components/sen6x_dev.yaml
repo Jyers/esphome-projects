@@ -40,41 +40,41 @@ sensor:
   - platform: sen6x
     id: sen54
     pm_1_0:
-      name: "PM <1µm Weight concentration ${node_name}"
+      name: "PM <1µm Weight concentration"
       id: pm10
       accuracy_decimals: 1
 
     pm_2_5:
-      name: "PM <2.5µm Weight concentration ${node_name}"
+      name: "PM <2.5µm Weight concentration"
       id: pm25
       accuracy_decimals: 1
 
     pm_4_0:
-      name: "PM <4µm Weight concentration ${node_name}"
+      name: "PM <4µm Weight concentration"
       id: pm40
       accuracy_decimals: 1
     pm_10_0:
-      name: "PM <10µm Weight concentration ${node_name}"
+      name: "PM <10µm Weight concentration"
       id: pm100
       accuracy_decimals: 1
     nox:
-      name: "NOX ${node_name}"
+      name: "NOX"
       id: nox
       accuracy_decimals: 1
     co2:
-      name: "CO2 ${node_name}"
+      name: "CO2"
       id: co2
       accuracy_decimals: 1
     temperature:
-      name: "Temperature top ${node_name}"
+      name: "Temperature top"
       accuracy_decimals: 1
       id: temperature_top
     humidity:
-      name: "Humidity ${node_name}"
+      name: "Humidity"
       accuracy_decimals: 0
       id: humidity
     voc:
-      name: "VOC ${node_name}"
+      name: "VOC"
       id: voc
       algorithm_tuning:
         index_offset: 100

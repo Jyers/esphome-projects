@@ -84,6 +84,16 @@ Valid ranges: 0 … 6553.5 (each is scaled by 10 internally).
 
 Note: Actions that require idle mode will stop measurement internally. Call `sen6x.start_measurement` again after running them.
 
+## Current consumption summary (SEN62/63C/65/66/68/69C)
+Approximate typical values (single-value summary).
+
+| Mode | Conditions | SEN62 | SEN63C | SEN65 | SEN66 | SEN68 | SEN69C | Unit |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Average current | Idle, first 10 s | ~3.3 | ~3.3 | ~4.6 | ~4.6 | ~4.6 | ~4.6 | mA |
+| Average current | Idle, after 10 s | ~3.3 | ~3.3 | ~3.3 | ~3.3 | ~3.3 | ~3.3 | mA |
+| Average current | Measurement, after 60 s | ~90.0 | ~100.0 | ~100.0 | ~110.0 | ~100.0 | ~100.0 | mA |
+| Peak current | Measurement pulse (~2 ms) | ~190.0 | ~200.0 | ~200.0 | ~350.0 | ~200.0 | ~210.0 | mA |
+
 ### Action examples
 ```
 on_boot:
@@ -103,17 +113,43 @@ on_boot:
 				id: sen6x_1
 ```
 
-### Energy-saving example (start every 5 min, run 2 min)
+### Energy-saving example (deep sleep: wake twice a day, run 5 min)
+Stop measurement before deep sleep to avoid I2C errors on shutdown.
 ```
-interval:
-  - interval: 5min
-    then:
-      - sen6x.start_measurement:
-          id: sen6x_1
-      - delay: 2min
-      - sen6x.stop_measurement:
-          id: sen6x_1
+deep_sleep:
+	run_duration: 5min
+	sleep_duration: 12h
+
+on_shutdown:
+	then:
+		- sen6x.stop_measurement:
+				id: sen6x_1
 ```
+Note: VOC values need at least ~2 minutes of continuous measurement to stabilize, so very short wake windows may yield unreliable VOC readings.
+
+SEN66 daily energy example (approx): sensor ~60 mA during measurement (measured, ~30% lower than datasheet), ESP32 ~50 mA during runtime,
+
+sensor idle ~3.3 mA during sleep, and ESP deep sleep ~20 µA.
+
+2 min/day → average current
+
+$I_{avg}=(60+50)\cdot\frac{2}{1440}+3.3\cdot\frac{1438}{1440}+0.02\cdot\frac{1438}{1440}\approx3.47\text{ mA}$.
+
+That’s about $3.47\text{ mA}\times24\text{ h}\approx83\text{ mAh}$ per day, or
+
+$3.3\text{ V}\times3.47\text{ mA}\times24\text{ h}\approx0.28\text{ Wh/day}$.
+
+With a 3.7 Wh battery, that’s about $3.7/0.28\approx13$ days.
+
+If waking every hour for 2 minutes (48 min/day):
+
+$I_{avg}=(60+50)\cdot\frac{48}{1440}+3.3\cdot\frac{1392}{1440}+0.02\cdot\frac{1392}{1440}\approx6.88\text{ mA}$,
+
+so about $6.88\text{ mA}\times24\text{ h}\approx165\text{ mAh}$ per day, or
+
+$3.3\text{ V}\times6.88\text{ mA}\times24\text{ h}\approx0.55\text{ Wh/day}$.
+
+That yields $3.7/0.55\approx6.7$ days.
 
 ## Example configuration
 ```

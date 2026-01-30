@@ -289,16 +289,6 @@ void SEN6XComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "  Serial number %02d.%02d.%02d", serial_number_[0], serial_number_[1], serial_number_[2]);
 
   LOG_UPDATE_INTERVAL(this);
-  LOG_SENSOR("  ", "PM  1.0", this->pm_1_0_sensor_);
-  LOG_SENSOR("  ", "PM  2.5", this->pm_2_5_sensor_);
-  LOG_SENSOR("  ", "PM  4.0", this->pm_4_0_sensor_);
-  LOG_SENSOR("  ", "PM 10.0", this->pm_10_0_sensor_);
-  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
-  LOG_SENSOR("  ", "Humidity", this->humidity_sensor_);
-  LOG_SENSOR("  ", "VOC", this->voc_sensor_);
-  LOG_SENSOR("  ", "NOx", this->nox_sensor_);
-  LOG_SENSOR("  ", "HCHO", this->hcho_sensor_);
-  LOG_SENSOR("  ", "CO2", this->co2_sensor_);  // SEN66
   if (this->measurement_running_binary_sensor_ != nullptr) {
     ESP_LOGCONFIG(TAG, "  Measurement running (binary sensor): %s",
                  this->measurement_started_ ? "ON" : "OFF");
@@ -339,6 +329,17 @@ void SEN6XComponent::dump_config() {
                  this->auto_cleaning_interval_s_.value());
   }
   ESP_LOGCONFIG(TAG, "  Startup delay: %u ms", this->startup_delay_ms_);
+  LOG_SENSOR("  ", "PM  1.0", this->pm_1_0_sensor_);
+  LOG_SENSOR("  ", "PM  2.5", this->pm_2_5_sensor_);
+  LOG_SENSOR("  ", "PM  4.0", this->pm_4_0_sensor_);
+  LOG_SENSOR("  ", "PM 10.0", this->pm_10_0_sensor_);
+  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
+  LOG_SENSOR("  ", "Humidity", this->humidity_sensor_);
+  LOG_SENSOR("  ", "VOC", this->voc_sensor_);
+  LOG_SENSOR("  ", "NOx", this->nox_sensor_);
+  LOG_SENSOR("  ", "HCHO", this->hcho_sensor_);
+  LOG_SENSOR("  ", "CO2", this->co2_sensor_);  
+
 }
 
 void SEN6XComponent::update() {
@@ -449,14 +450,8 @@ void SEN6XComponent::update() {
   *poll_ready = [this, poll_ready, poll_retries, read_cmd, read_words](uint8_t retries_left) {
     const uint8_t attempt = static_cast<uint8_t>(poll_retries - retries_left + 1);
     ESP_LOGV(TAG, "Data ready polling attempt %u", attempt);
-    if (!this->write_command(SEN6X_CMD_GET_DATA_READY_STATUS)) {
-      this->status_set_warning();
-      ESP_LOGD(TAG, "write error data ready status (%d)", this->last_error_);
-      return;
-    }
-
     uint16_t raw_read_status;
-    if (!this->read_data(raw_read_status)) {
+    if (!this->get_register(SEN6X_CMD_GET_DATA_READY_STATUS, raw_read_status, 20)) {
       this->status_set_warning();
       ESP_LOGD(TAG, "read data ready status error (%d)", this->last_error_);
       return;
