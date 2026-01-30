@@ -2,7 +2,35 @@
 
 # Sensirion SEN6x ESPHome Component
 
+![SEN66](sen66.png)
+
 Integration for Sensirion SEN6x air quality sensors (I²C only; SEN6x does not support UART).
+
+## Highlights
+- PM, RH & T, VOC, NOx, CO2/HCHO sensing platform
+- Fast & easy integration
+- 10 years dust resistant – Patented Sheath Flow technology
+- Fully calibrated digital output
+- One node for up to 9 data signals
+- Integrated compensation algorithms
+- Ready for California Title 24, RESET®2 and WELL Building Standard™3
+
+The SEN6x sensor module family is an air quality platform that combines critical parameters such as particulate
+matter, relative humidity, temperature, VOC, NOx and either CO2 or formaldehyde, all in one compact package.
+The modules are a result of Sensirion’s extensive experience in environmental sensing and offer the best
+possible performance for each parameter, a superior lifetime and an unrivaled form factor. The combination of
+all measurement parameters, together with all relevant algorithms in one device simplifies the integration,
+streamlines the supply chain, and allows for a fast time to market with the best performance.
+
+## Product variant sensor signals
+| Product Variant | Sensor Signals |
+| --- | --- |
+| SEN62 | PM, RH & T |
+| SEN63C | PM, RH & T, CO2 |
+| SEN65 | PM, RH & T, VOC, NOx |
+| SEN66 | PM, RH & T, VOC, NOx, CO2 |
+| SEN68 | PM, RH & T, VOC, NOx, HCHO |
+| SEN69C | PM, RH & T, VOC, NOx, HCHO, CO2 |
 
 ## Supported variants
 - SEN62
@@ -11,6 +39,20 @@ Integration for Sensirion SEN6x air quality sensors (I²C only; SEN6x does not s
 - SEN66
 - SEN68
 - SEN69C
+
+## Connection / pinout
+| Pin | Name | Description | Comments |
+| --- | --- | --- | --- |
+| 1 | VDD | Supply voltage | — |
+| 2 | GND | Ground | — |
+| 3 | SDA | Serial data input/output | TTL 5V compatible |
+| 4 | SCL | Serial clock input | TTL 5V compatible |
+| 5 | GND | Ground or NC | Pins 2 and 5 are connected internally |
+| 6 | VDD | Supply voltage or NC | Pins 1 and 6 are connected internally |
+
+![SEN6x pinout](pinout.png)
+
+
 
 ## Configuration variables
 All sensor options are optional and follow ESPHome Sensor schema unless noted.
