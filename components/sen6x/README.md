@@ -159,8 +159,8 @@ on_boot:
 Stop measurement before deep sleep to avoid I2C errors on shutdown.
 ```
 deep_sleep:
-	run_duration: 5min
-	sleep_duration: 12h
+	run_duration: 2min
+	sleep_duration: 24h
 
 on_shutdown:
 	then:
@@ -169,13 +169,12 @@ on_shutdown:
 ```
 Note: VOC values need at least ~2 minutes of continuous measurement to stabilize, so very short wake windows may yield unreliable VOC readings.
 
-SEN66 daily energy example (approx): sensor ~60 mA during measurement (measured, ~30% lower than datasheet), ESP32 ~50 mA during runtime,
+SEN66 daily energy example (approx): sensor ~60 mA during measurement (measured, ~30% lower than datasheet),
+ESP32 ~50 mA during runtime; sensor idle ~3.3 mA during sleep, and ESP deep sleep ~20 µA.
 
-sensor idle ~3.3 mA during sleep, and ESP deep sleep ~20 µA.
+2 min/day active (1438 min/day idle) → average current
 
-2 min/day → average current
-
-$I_{avg}=(60+50)\cdot\frac{2}{1440}+3.3\cdot\frac{1438}{1440}+0.02\cdot\frac{1438}{1440}\approx3.47\text{ mA}$.
+$I_{avg}=110\cdot\frac{2}{1440}+(3.3+0.02)\cdot\frac{1438}{1440}\approx3.47\text{ mA}$.
 
 That’s about $3.47\text{ mA}\times24\text{ h}\approx83\text{ mAh}$ per day, or
 
@@ -185,7 +184,7 @@ With a 3.7 Wh battery, that’s about $3.7/0.28\approx13$ days.
 
 If waking every hour for 2 minutes (48 min/day):
 
-$I_{avg}=(60+50)\cdot\frac{48}{1440}+3.3\cdot\frac{1392}{1440}+0.02\cdot\frac{1392}{1440}\approx6.88\text{ mA}$,
+$I_{avg}=110\cdot\frac{48}{1440}+(3.3+0.02)\cdot\frac{1392}{1440}\approx6.88\text{ mA}$,
 
 so about $6.88\text{ mA}\times24\text{ h}\approx165\text{ mAh}$ per day, or
 
