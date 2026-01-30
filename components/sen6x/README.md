@@ -6,6 +6,10 @@
 
 Integration for Sensirion SEN6x air quality sensors (I²C only; SEN6x does not support UART).
 
+## Buy info
+Don’t buy from AliExpress at the moment; prices from specialist stores like Mouser (EU) or DigiKey, Newark (US) are way
+cheaper. SEN66 are now about at ~€60 / 60USD.
+
 ## Highlights
 - PM, RH & T, VOC, NOx, CO2/HCHO sensing platform
 - Fast & easy integration
@@ -22,28 +26,21 @@ possible performance for each parameter, a superior lifetime and an unrivaled fo
 all measurement parameters, together with all relevant algorithms in one device simplifies the integration,
 streamlines the supply chain, and allows for a fast time to market with the best performance.
 
-## Product variant sensor signals
+## Supported variants
 | Product Variant | Sensor Signals |
 | --- | --- |
-| SEN62 | PM, RH & T |
-| SEN63C | PM, RH & T, CO2 |
-| SEN65 | PM, RH & T, VOC, NOx |
-| SEN66 | PM, RH & T, VOC, NOx, CO2 |
-| SEN68 | PM, RH & T, VOC, NOx, HCHO |
-| SEN69C | PM, RH & T, VOC, NOx, HCHO, CO2 |
+| [SEN62](https://sensirion.com/de/produkte/katalog/SEN62) | PM, RH & T |
+| [SEN63C](https://sensirion.com/de/produkte/katalog/SEN63C) | PM, RH & T, CO2 |
+| [SEN65](https://sensirion.com/de/produkte/katalog/SEN65) | PM, RH & T, VOC, NOx |
+| [SEN66](https://sensirion.com/de/produkte/katalog/SEN66) | PM, RH & T, VOC, NOx, CO2 |
+| [SEN68](https://sensirion.com/de/produkte/katalog/SEN68) | PM, RH & T, VOC, NOx, HCHO |
+| [SEN69C](https://sensirion.com/de/produkte/katalog/SEN69C) | PM, RH & T, VOC, NOx, HCHO, CO2 |
 
-## Supported variants
-- SEN62
-- SEN63C
-- SEN65
-- SEN66
-- SEN68
-- SEN69C
 
 ## Connection / pinout
 | Pin | Name | Description | Comments |
 | --- | --- | --- | --- |
-| 1 | VDD | Supply voltage | — |
+| 1 | VDD | Supply voltage | 3.3V |
 | 2 | GND | Ground | — |
 | 3 | SDA | Serial data input/output | TTL 5V compatible |
 | 4 | SCL | Serial clock input | TTL 5V compatible |
