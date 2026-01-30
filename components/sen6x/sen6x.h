@@ -2,6 +2,7 @@
 
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
+#include "esphome/components/binary_sensor/binary_sensor.h"
 #include "esphome/components/sensirion_common/i2c_sensirion.h"
 #include "esphome/core/application.h"
 #include "esphome/core/preferences.h"
@@ -73,6 +74,17 @@ class SEN6XComponent : public PollingComponent, public sensirion_common::Sensiri
   void set_humidity_sensor(sensor::Sensor *humidity_sensor) { humidity_sensor_ = humidity_sensor; }
   void set_temperature_sensor(sensor::Sensor *temperature_sensor) { temperature_sensor_ = temperature_sensor; }
   void set_co2_sensor(sensor::Sensor *co2) { co2_sensor_ = co2; }
+  void set_ambient_pressure(uint16_t ambient_pressure) { ambient_pressure_ = ambient_pressure; }
+  void set_sensor_altitude(uint16_t sensor_altitude) { sensor_altitude_ = sensor_altitude; }
+  void set_co2_automatic_self_calibration(bool enabled) { co2_asc_ = enabled; }
+  void set_startup_delay(uint32_t delay_ms) { startup_delay_ms_ = delay_ms; }
+  void set_auto_cleaning(bool enabled, uint32_t interval_s) {
+    auto_cleaning_enabled_ = enabled;
+    auto_cleaning_interval_s_ = interval_s;
+  }
+  void set_measurement_running_binary_sensor(binary_sensor::BinarySensor *sensor) {
+    measurement_running_binary_sensor_ = sensor;
+  }
   void set_store_baseline(bool store_baseline) { store_baseline_ = store_baseline; }
   void set_voc_algorithm_tuning(uint16_t index_offset, uint16_t learning_time_offset_hours,
                                 uint16_t learning_time_gain_hours, uint16_t gating_max_duration_minutes,
@@ -115,6 +127,12 @@ class SEN6XComponent : public PollingComponent, public sensirion_common::Sensiri
     temperature_acceleration_ = temp_accel;
   }
   bool start_fan_cleaning();
+  bool perform_forced_co2_recalibration(uint16_t reference_ppm);
+  bool co2_sensor_factory_reset();
+  bool activate_sht_heater();
+  bool get_sht_heater_measurements();
+  bool start_measurement();
+  bool stop_measurement();
 
  protected:
   bool write_tuning_parameters_(uint16_t i2c_command, const GasTuning &tuning);
@@ -134,6 +152,7 @@ class SEN6XComponent : public PollingComponent, public sensirion_common::Sensiri
   sensor::Sensor *nox_sensor_{nullptr};
   sensor::Sensor *hcho_sensor_{nullptr};
   sensor::Sensor *co2_sensor_{nullptr};
+  binary_sensor::BinarySensor *measurement_running_binary_sensor_{nullptr};
 
   std::string product_name_;
   Sen6xType sen6x_type_{UNKNOWN};
@@ -147,6 +166,31 @@ class SEN6XComponent : public PollingComponent, public sensirion_common::Sensiri
   optional<GasTuning> nox_tuning_params_;
   optional<TemperatureCompensation> temperature_compensation_;
   optional<TemperatureAcceleration> temperature_acceleration_;
+  optional<uint16_t> ambient_pressure_;
+  optional<uint16_t> sensor_altitude_;
+  optional<bool> co2_asc_;
+  optional<uint16_t> ambient_pressure_read_;
+  optional<uint16_t> sensor_altitude_read_;
+  optional<bool> co2_asc_read_;
+  optional<bool> auto_cleaning_enabled_;
+  optional<uint32_t> auto_cleaning_interval_s_;
+  bool measurement_started_{false};
+  uint32_t startup_delay_ms_{60000};
+  uint32_t startup_stable_after_{0};
+  uint32_t last_stop_ms_{0};
+  uint32_t last_cleaning_ms_{0};
+  bool auto_clean_restart_pending_{false};
+  bool has_last_values_{false};
+  float last_pm_1_0_{NAN};
+  float last_pm_2_5_{NAN};
+  float last_pm_4_0_{NAN};
+  float last_pm_10_0_{NAN};
+  float last_temperature_{NAN};
+  float last_humidity_{NAN};
+  float last_voc_{NAN};
+  float last_nox_{NAN};
+  float last_hcho_{NAN};
+  float last_co2_{NAN};
 };
 
 }  // namespace sen6x

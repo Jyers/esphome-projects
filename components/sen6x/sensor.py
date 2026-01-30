@@ -1,11 +1,12 @@
 from esphome import automation
 from esphome.automation import maybe_simple_id
 import esphome.codegen as cg
-from esphome.components import i2c, sensirion_common, sensor
+from esphome.components import i2c, sensirion_common, sensor, binary_sensor
 import esphome.config_validation as cv
 from esphome.const import (
     CONF_HUMIDITY,
     CONF_ID,
+    CONF_INTERVAL,
     CONF_OFFSET,
     CONF_PM_1_0,
     CONF_PM_2_5,
@@ -34,9 +35,11 @@ from esphome.const import (
     UNIT_PERCENT,
 )
 
+CONF_ENABLED = "enabled"
+
 CODEOWNERS = ["@martgras"]
 DEPENDENCIES = ["i2c"]
-AUTO_LOAD = ["sensirion_common"]
+AUTO_LOAD = ["sensirion_common", "binary_sensor"]
 
 sen6x_ns = cg.esphome_ns.namespace("sen6x")
 SEN6XComponent = sen6x_ns.class_(
@@ -64,10 +67,31 @@ CONF_VOC = "voc"
 CONF_VOC_BASELINE = "voc_baseline"
 CONF_CO2 = "co2"
 CONF_HCHO = "hcho"
+CONF_AMBIENT_PRESSURE = "ambient_pressure"
+CONF_SENSOR_ALTITUDE = "sensor_altitude"
+CONF_CO2_ASC = "co2_automatic_self_calibration"
+CONF_STARTUP_DELAY = "startup_delay"
+CONF_MEASUREMENT_RUNNING = "measurement_running"
+CONF_AUTO_CLEANING = "auto_cleaning"
 
 
 # Actions
 StartFanAction = sen6x_ns.class_("StartFanAction", automation.Action)
+PerformForcedCO2RecalibrationAction = sen6x_ns.class_(
+    "PerformForcedCO2RecalibrationAction", automation.Action
+)
+CO2SensorFactoryResetAction = sen6x_ns.class_(
+    "CO2SensorFactoryResetAction", automation.Action
+)
+ActivateSHTHeaterAction = sen6x_ns.class_(
+    "ActivateSHTHeaterAction", automation.Action
+)
+GetSHTHeaterMeasurementsAction = sen6x_ns.class_(
+    "GetSHTHeaterMeasurementsAction", automation.Action
+)
+StartMeasurementAction = sen6x_ns.class_("StartMeasurementAction", automation.Action)
+StopMeasurementAction = sen6x_ns.class_("StopMeasurementAction", automation.Action)
+CONF_REFERENCE_CO2 = "reference_co2"
 
 
 
@@ -156,6 +180,16 @@ CONFIG_SCHEMA = (
                 accuracy_decimals=0,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
+            cv.Optional(CONF_AMBIENT_PRESSURE): cv.int_range(700, 1200),
+            cv.Optional(CONF_SENSOR_ALTITUDE): cv.int_range(0, 3000),
+            cv.Optional(CONF_CO2_ASC): cv.boolean,
+            cv.Optional(CONF_STARTUP_DELAY, default="60s"): cv.positive_time_period_milliseconds,
+            cv.Optional(CONF_AUTO_CLEANING): cv.Schema(
+                {
+                    cv.Optional(CONF_ENABLED, default=True): cv.boolean,
+                    cv.Optional(CONF_INTERVAL, default="1week"): cv.positive_time_period_seconds,
+                }
+            ),
             cv.Optional(CONF_STORE_BASELINE, default=True): cv.boolean,
             cv.Optional(CONF_VOC_BASELINE): cv.hex_uint16_t,
             cv.Optional(CONF_TEMPERATURE): sensor.sensor_schema(
@@ -189,6 +223,9 @@ CONFIG_SCHEMA = (
                     cv.Optional(CONF_T1, default=0): cv.float_range(0, 6553.5),
                     cv.Optional(CONF_T2, default=0): cv.float_range(0, 6553.5),
                 }
+            ),
+            cv.Optional(CONF_MEASUREMENT_RUNNING): binary_sensor.binary_sensor_schema(
+                device_class="running"
             )
         }
     )
@@ -270,6 +307,20 @@ async def to_code(config):
                     cfg[CONF_T2],
                 )
             )
+        if CONF_MEASUREMENT_RUNNING in config:
+            sens = await binary_sensor.new_binary_sensor(config[CONF_MEASUREMENT_RUNNING])
+            cg.add(var.set_measurement_running_binary_sensor(sens))
+        if CONF_AMBIENT_PRESSURE in config:
+            cg.add(var.set_ambient_pressure(config[CONF_AMBIENT_PRESSURE]))
+        if CONF_SENSOR_ALTITUDE in config:
+            cg.add(var.set_sensor_altitude(config[CONF_SENSOR_ALTITUDE]))
+        if CONF_CO2_ASC in config:
+            cg.add(var.set_co2_automatic_self_calibration(config[CONF_CO2_ASC]))
+        if CONF_STARTUP_DELAY in config:
+            cg.add(var.set_startup_delay(config[CONF_STARTUP_DELAY]))
+        if CONF_AUTO_CLEANING in config:
+            cfg = config[CONF_AUTO_CLEANING]
+            cg.add(var.set_auto_cleaning(cfg[CONF_ENABLED], cfg[CONF_INTERVAL]))
 
 
 SEN6X_ACTION_SCHEMA = maybe_simple_id(
@@ -278,10 +329,70 @@ SEN6X_ACTION_SCHEMA = maybe_simple_id(
     }
 )
 
+SEN6X_FRC_ACTION_SCHEMA = cv.Schema(
+    {
+        cv.Required(CONF_ID): cv.use_id(SEN6XComponent),
+        cv.Required(CONF_REFERENCE_CO2): cv.templatable(cv.int_range(0, 20000)),
+    }
+)
+
 
 @automation.register_action(
     "sen6x.start_fan_autoclean", StartFanAction, SEN6X_ACTION_SCHEMA
 )
 async def sen54_fan_to_code(config, action_id, template_arg, args):
+    paren = await cg.get_variable(config[CONF_ID])
+    return cg.new_Pvariable(action_id, template_arg, paren)
+
+
+@automation.register_action(
+    "sen6x.perform_forced_co2_recalibration",
+    PerformForcedCO2RecalibrationAction,
+    SEN6X_FRC_ACTION_SCHEMA,
+)
+async def sen6x_frc_to_code(config, action_id, template_arg, args):
+    paren = await cg.get_variable(config[CONF_ID])
+    var = cg.new_Pvariable(action_id, template_arg, paren)
+    templ = await cg.templatable(config[CONF_REFERENCE_CO2], args, cg.uint16)
+    cg.add(var.set_reference(templ))
+    return var
+
+
+@automation.register_action(
+    "sen6x.co2_sensor_factory_reset", CO2SensorFactoryResetAction, SEN6X_ACTION_SCHEMA
+)
+async def sen6x_co2_reset_to_code(config, action_id, template_arg, args):
+    paren = await cg.get_variable(config[CONF_ID])
+    return cg.new_Pvariable(action_id, template_arg, paren)
+
+
+@automation.register_action(
+    "sen6x.activate_sht_heater", ActivateSHTHeaterAction, SEN6X_ACTION_SCHEMA
+)
+async def sen6x_sht_heater_to_code(config, action_id, template_arg, args):
+    paren = await cg.get_variable(config[CONF_ID])
+    return cg.new_Pvariable(action_id, template_arg, paren)
+
+
+@automation.register_action(
+    "sen6x.get_sht_heater_measurements", GetSHTHeaterMeasurementsAction, SEN6X_ACTION_SCHEMA
+)
+async def sen6x_sht_heater_measurements_to_code(config, action_id, template_arg, args):
+    paren = await cg.get_variable(config[CONF_ID])
+    return cg.new_Pvariable(action_id, template_arg, paren)
+
+
+@automation.register_action(
+    "sen6x.start_measurement", StartMeasurementAction, SEN6X_ACTION_SCHEMA
+)
+async def sen6x_start_measurement_to_code(config, action_id, template_arg, args):
+    paren = await cg.get_variable(config[CONF_ID])
+    return cg.new_Pvariable(action_id, template_arg, paren)
+
+
+@automation.register_action(
+    "sen6x.stop_measurement", StopMeasurementAction, SEN6X_ACTION_SCHEMA
+)
+async def sen6x_stop_measurement_to_code(config, action_id, template_arg, args):
     paren = await cg.get_variable(config[CONF_ID])
     return cg.new_Pvariable(action_id, template_arg, paren)
