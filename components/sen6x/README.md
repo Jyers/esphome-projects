@@ -1,5 +1,13 @@
 [← Back to Components](../README.md)
 
+
+# Depricated (soon!)
+
+esphome 20226.3.0 should finally have official support!
+Here is the merged PR:
+https://github.com/esphome/esphome/pull/12553
+
+
 # Sensirion SEN6x ESPHome Component
 
 ![SEN66](images/sen66.png)
