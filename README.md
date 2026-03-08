@@ -7,7 +7,7 @@ Mostly DIY esphome devices, but also some some components and esphome based cust
 ## ESPHome Components
 
 * [Levoit](./components/levoit) – Generic Levoit ESPHome component supporting Core (200/300/400) and Vital (100/200) series with UART communication, filter tracking, and multi-entity support
-* [Sensirion Sen66](./components/sen6x) – Integration for the Sensirion Sen66 air quality sensor
+* ~~[Sensirion Sen66](./components/sen6x)~~ – **DEPRECATED** Integration for the Sensirion Sen66 air quality sensor
 * ~~[Levoit Core300s](./components/core300s)~~ – **DEPRECATED** (use generic Levoit component instead)
 * ~~[Levoit Core400s](./components/core400s)~~ – **DEPRECATED** (use generic Levoit component instead)
 
