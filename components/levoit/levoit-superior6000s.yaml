@@ -1,0 +1,152 @@
+# Example configuration for Levoit Superior 6000S (Humidifier)
+# Replace the GPIO pins with the correct ones for your device
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+external_components:
+  - source:
+      type: local
+      path: ../../components
+
+uart:
+  - id: uart_mcu2esp
+    tx_pin: GPIO17
+    rx_pin: GPIO16
+    baud_rate: 115200
+    data_bits: 8
+    stop_bits: 1
+    parity: NONE
+
+logger:
+  level: DEBUG
+
+levoit:
+  id: levoitsuperior6000
+  model: SUPERIOR6000S
+  uart_id: uart_mcu2esp
+
+fan:
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Fan"
+
+switch:
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Display"
+    type: display
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Child Lock"
+    type: child_lock
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Auto Dry (Power Off)"
+    type: auto_dry_power_off
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Auto Dry (Water Empty)"
+    type: auto_dry_water_empty
+
+number:
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Timer (min)"
+    type: timer
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Humidity Target"
+    type: humidity_target
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Filter Months"
+    type: filter_lifetime_months
+
+sensor:
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Humidity"
+    type: humidity
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Temperature"
+    type: temperature
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Timer Remaining"
+    type: timer_current
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Filter Life (MCU)"
+    type: filter_life_mcu
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Filter Life %"
+    type: filter_life_left
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Current CADR"
+    type: current_cadr
+
+select:
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Auto Profile"
+    type: auto_profile
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Humidity Mode"
+    type: humidity_subtype
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Dry Level"
+    type: dry_level
+
+text_sensor:
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "MCU Version"
+    type: mcu_version
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Timer Initial"
+    type: timer_duration_initial
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Timer Remaining"
+    type: timer_duration_remaining
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Error"
+    type: error_message
+
+binary_sensor:
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Filter Low"
+    type: filter_low
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Cover Removed"
+    type: cover_removed
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Water Tank Empty"
+    type: water_tank_empty
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Dry Active"
+    type: dry_active
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Humidifying"
+    type: humidifying
+
+button:
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Filter Reset"
+    type: reset_filter_stats

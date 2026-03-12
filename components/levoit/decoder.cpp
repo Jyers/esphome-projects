@@ -1,6 +1,7 @@
 #include "decoder.h"
 #include "vital_status.h"
 #include "core_status.h"
+#include "superior_status.h"
 #include "esphome/core/log.h"
 #include "types.h"
 
@@ -153,6 +154,16 @@ namespace esphome
           {
             decode_vital_timer(self, model, payload, payload_len);
           }
+        }
+        if (model == ModelType::SUPERIOR6000S)
+        {
+          // Superior models: status report with TLV payload (ptype=0x30, 0x55)
+          if (msg_type == 0x22 && ptype0 == 0x30 && ptype1 == 0x55)
+          {
+            decode_superior_status(self, model, payload, payload_len);
+          }
+          // Superior ACKs (msg_type=0x12) are handled by the ack logic above
+          // Timer is ESP-managed for superior, no MCU timer decoding needed
         }
       }
 

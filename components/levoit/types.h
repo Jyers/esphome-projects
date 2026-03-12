@@ -13,7 +13,8 @@ namespace esphome
             CORE300S = 2,
             CORE400S = 3,
             CORE200S = 4,
-            CORE600S = 5
+            CORE600S = 5,
+            SUPERIOR6000S = 6
         };
 
         enum class SwitchType : uint8_t
@@ -23,7 +24,9 @@ namespace esphome
             LIGHT_DETECT = 2,
             QUICK_CLEAN = 3,
             WHITE_NOISE = 4,
-            DAYTIME_ENABLED = 5
+            DAYTIME_ENABLED = 5,
+            AUTO_DRY_POWER_OFF = 6,
+            AUTO_DRY_WATER_EMPTY = 7
         };
         // SwitchType aliases (flat namespace)
         static constexpr SwitchType DISPLAY = SwitchType::DISPLAY;
@@ -32,6 +35,8 @@ namespace esphome
         static constexpr SwitchType QUICK_CLEAN = SwitchType::QUICK_CLEAN;
         static constexpr SwitchType WHITE_NOISE = SwitchType::WHITE_NOISE;
         static constexpr SwitchType DAYTIME_ENABLED = SwitchType::DAYTIME_ENABLED;
+        static constexpr SwitchType AUTO_DRY_POWER_OFF = SwitchType::AUTO_DRY_POWER_OFF;
+        static constexpr SwitchType AUTO_DRY_WATER_EMPTY = SwitchType::AUTO_DRY_WATER_EMPTY;
 
         enum class NumberType : uint8_t
         {
@@ -43,6 +48,7 @@ namespace esphome
             FILTER_LIFETIME_MONTHS = 5,
             USED_CADR = 6,
             TOTAL_RUNTIME = 7,
+            HUMIDITY_TARGET = 8,
         };
         // NumberType aliases (flat namespace)
         static constexpr NumberType TIMER = NumberType::TIMER;
@@ -53,6 +59,7 @@ namespace esphome
         static constexpr NumberType FILTER_LIFETIME_MONTHS = NumberType::FILTER_LIFETIME_MONTHS;
         static constexpr NumberType USED_CADR = NumberType::USED_CADR;
         static constexpr NumberType TOTAL_RUNTIME = NumberType::TOTAL_RUNTIME;
+        static constexpr NumberType HUMIDITY_TARGET = NumberType::HUMIDITY_TARGET;
 
         enum class SensorType : uint8_t
         {
@@ -62,19 +69,33 @@ namespace esphome
             EFFICIENCY_COUNTER = 3,
             CURRENT_CADR = 4,
             FILTER_LIFE_LEFT = 5,
+            HUMIDITY = 6,
+            TEMPERATURE = 7,
+            FILTER_LIFE_MCU = 8,
         };
-        // NumberType aliases (flat namespace)
+        // SensorType aliases (flat namespace)
         static constexpr SensorType AQI = SensorType::AQI;
         static constexpr SensorType PM25 = SensorType::PM25;
         static constexpr SensorType TIMER_CURRENT = SensorType::TIMER_CURRENT;
         static constexpr SensorType EFFICIENCY_COUNTER = SensorType::EFFICIENCY_COUNTER;
         static constexpr SensorType CURRENT_CADR = SensorType::CURRENT_CADR;
         static constexpr SensorType FILTER_LIFE_LEFT = SensorType::FILTER_LIFE_LEFT;
+        static constexpr SensorType HUMIDITY = SensorType::HUMIDITY;
+        static constexpr SensorType TEMPERATURE = SensorType::TEMPERATURE;
+        static constexpr SensorType FILTER_LIFE_MCU = SensorType::FILTER_LIFE_MCU;
 
         enum class BinarySensorType : uint8_t {
             FILTER_LOW = 0,
+            COVER_REMOVED = 1,
+            WATER_TANK_EMPTY = 2,
+            DRY_ACTIVE = 3,
+            HUMIDIFYING = 4,
         };
         static constexpr BinarySensorType FILTER_LOW = BinarySensorType::FILTER_LOW;
+        static constexpr BinarySensorType COVER_REMOVED = BinarySensorType::COVER_REMOVED;
+        static constexpr BinarySensorType WATER_TANK_EMPTY = BinarySensorType::WATER_TANK_EMPTY;
+        static constexpr BinarySensorType DRY_ACTIVE = BinarySensorType::DRY_ACTIVE;
+        static constexpr BinarySensorType HUMIDIFYING = BinarySensorType::HUMIDIFYING;
 
         enum class ButtonType : uint8_t {
             RESET_FILTER_STATS = 0,
@@ -108,6 +129,9 @@ namespace esphome
             WHITE_NOISE_FAN_LEVEL = 3,
             SLEEP_MODE_FAN_MODE_LEVEL = 4,
             DAYTIME_FAN_MODE_LEVEL = 5,
+            AUTO_PROFILE = 6,
+            HUMIDITY_SUBTYPE = 7,
+            DRY_LEVEL = 8,
         };
         static constexpr SelectType AUTO_MODE = SelectType::AUTO_MODE;
         static constexpr SelectType SLEEP_MODE = SelectType::SLEEP_MODE;
@@ -115,6 +139,9 @@ namespace esphome
         static constexpr SelectType WHITE_NOISE_FAN_LEVEL = SelectType::WHITE_NOISE_FAN_LEVEL;
         static constexpr SelectType SLEEP_MODE_FAN_MODE_LEVEL = SelectType::SLEEP_MODE_FAN_MODE_LEVEL;
         static constexpr SelectType DAYTIME_FAN_MODE_LEVEL = SelectType::DAYTIME_FAN_MODE_LEVEL;
+        static constexpr SelectType AUTO_PROFILE = SelectType::AUTO_PROFILE;
+        static constexpr SelectType HUMIDITY_SUBTYPE = SelectType::HUMIDITY_SUBTYPE;
+        static constexpr SelectType DRY_LEVEL = SelectType::DRY_LEVEL;
 
 
 
@@ -152,6 +179,24 @@ namespace esphome
             setFanModePet,
             setPowerMode,
             setSleepModeDefault,
+            // Superior only below
+            setDeviceFanLvl5,
+            setDeviceFanLvl6,
+            setDeviceFanLvl7,
+            setDeviceFanLvl8,
+            setDeviceFanLvl9,
+            setFanModeHumidity,
+            setAutoProfileHome,
+            setAutoProfileAway,
+            setHumiditySubtypeSmart,
+            setHumiditySubtypeFan,
+            setHumidityTarget,
+            setDryLevelLow,
+            setDryLevelHigh,
+            setAutoDryPowerOffOn,
+            setAutoDryPowerOffOff,
+            setAutoDryWaterEmptyOn,
+            setAutoDryWaterEmptyOff,
             COMMAND_TYPE_MAX
 
             // dedicated command for setSleepModeCustom
@@ -190,6 +235,23 @@ namespace esphome
                 "setFanModePet",
                 "setPowerMode",
                 "setSleepModeDefault",
+                "setDeviceFanLvl5",
+                "setDeviceFanLvl6",
+                "setDeviceFanLvl7",
+                "setDeviceFanLvl8",
+                "setDeviceFanLvl9",
+                "setFanModeHumidity",
+                "setAutoProfileHome",
+                "setAutoProfileAway",
+                "setHumiditySubtypeSmart",
+                "setHumiditySubtypeFan",
+                "setHumidityTarget",
+                "setDryLevelLow",
+                "setDryLevelHigh",
+                "setAutoDryPowerOffOn",
+                "setAutoDryPowerOffOff",
+                "setAutoDryWaterEmptyOn",
+                "setAutoDryWaterEmptyOff",
             };
             static_assert(
                 sizeof(names) / sizeof(names[0]) == COMMAND_TYPE_MAX,

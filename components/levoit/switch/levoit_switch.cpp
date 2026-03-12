@@ -17,6 +17,8 @@ namespace esphome
       case SwitchType::DAYTIME_ENABLED:
       case SwitchType::QUICK_CLEAN:
       case SwitchType::WHITE_NOISE:
+      case SwitchType::AUTO_DRY_POWER_OFF:
+      case SwitchType::AUTO_DRY_WATER_EMPTY:
       default:
         this->set_entity_category(EntityCategory::ENTITY_CATEGORY_CONFIG);
         break;

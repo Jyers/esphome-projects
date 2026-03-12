@@ -17,6 +17,10 @@ TYPE_MAP = {
     "efficiency_counter": SensorType.EFFICIENCY_COUNTER,
     "current_cadr": SensorType.CURRENT_CADR,
     "filter_life_left": SensorType.FILTER_LIFE_LEFT,
+    # Superior only below
+    "humidity": SensorType.HUMIDITY,
+    "temperature": SensorType.TEMPERATURE,
+    "filter_life_mcu": SensorType.FILTER_LIFE_MCU,
 }
   
 

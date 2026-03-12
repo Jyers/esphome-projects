@@ -21,6 +21,8 @@ TYPE_MAP = {
     "white_noise_fan_level": NumberType.WHITE_NOISE_FAN_LEVEL,
     "sleep_mode_fan_mode_level": NumberType.SLEEP_MODE_FAN_MODE_LEVEL,
     "filter_lifetime_months": NumberType.FILTER_LIFETIME_MONTHS,
+    # Superior only below
+    "humidity_target": NumberType.HUMIDITY_TARGET,
 }
   
 
