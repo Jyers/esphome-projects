@@ -16,6 +16,8 @@ TYPE_MAP = {
     "light_detect": SwitchType.LIGHT_DETECT,
     "quick_clean": SwitchType.QUICK_CLEAN,
     "white_noise": SwitchType.WHITE_NOISE,
+    "auto_dry_power_off": SwitchType.AUTO_DRY_POWER_OFF,
+    "auto_dry_water_empty": SwitchType.AUTO_DRY_WATER_EMPTY,
 }
 
 CONFIG_SCHEMA = switch.switch_schema(LevoitSwitch).extend(

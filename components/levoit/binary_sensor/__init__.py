@@ -12,6 +12,11 @@ BinarySensorType = levoit_ns.enum("BinarySensorType")
 
 TYPE_MAP = {
     "filter_low": BinarySensorType.FILTER_LOW,
+    # Superior only below
+    "cover_removed": BinarySensorType.COVER_REMOVED,
+    "water_tank_empty": BinarySensorType.WATER_TANK_EMPTY,
+    "dry_active": BinarySensorType.DRY_ACTIVE,
+    "humidifying": BinarySensorType.HUMIDIFYING,
 }
 
 CONFIG_SCHEMA = binary_sensor.binary_sensor_schema(LevoitBinarySensor).extend(

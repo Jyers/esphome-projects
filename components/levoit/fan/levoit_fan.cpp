@@ -19,6 +19,7 @@ namespace esphome
             {0, "Manual"},
             {1, "Sleep"},
             {2, "Auto"},
+            {3, "Humidity"},
             {5, "Pet"},
         };
         static int preset_to_device_mode(const char *preset)
@@ -41,6 +42,7 @@ namespace esphome
         {
             bool isCore300s = parent_->get_model() == ModelType::CORE300S;
             bool isCoreModel = parent_->get_model() == ModelType::CORE300S || parent_->get_model() == ModelType::CORE400S;
+            bool isSuperior = parent_->get_model() == ModelType::SUPERIOR6000S;
             auto restore = this->restore_state_();
             if (restore.has_value())
             {
@@ -50,14 +52,20 @@ namespace esphome
             std::vector<const char *> preset_modes;
             for (const auto &m : MODE_MAP)
             {
-                if(isCoreModel && m.preset == "Pet")
+                if(isCoreModel && std::strcmp(m.preset, "Pet") == 0)
                     continue; // Core models do not have Pet mode
+                if(!isSuperior && std::strcmp(m.preset, "Humidity") == 0)
+                    continue; // Only Superior has Humidity mode
+                if(isSuperior && std::strcmp(m.preset, "Pet") == 0)
+                    continue; // Superior does not have Pet mode
                 preset_modes.push_back(m.preset);
             }
             
             // Set speed count based on model
             if (parent_ != nullptr && isCore300s) {
                 this->speed_count_ = 3;  // Core300S has 3 speeds
+            } else if (parent_ != nullptr && isSuperior) {
+                this->speed_count_ = 9;  // Superior has 9 speeds
             } else {
                 this->speed_count_ = 4;  // Other models have 4 speeds
             }

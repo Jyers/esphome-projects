@@ -37,6 +37,19 @@ namespace esphome
         case SelectType::DAYTIME_FAN_MODE_LEVEL:
           this->set_entity_category(EntityCategory::ENTITY_CATEGORY_CONFIG);
           this->traits.set_options({"Auto","Low","Medium","High","Highest","Pet"});
+          break;
+        case SelectType::AUTO_PROFILE:
+          this->set_entity_category(EntityCategory::ENTITY_CATEGORY_CONFIG);
+          this->traits.set_options({"Home","Away"});
+          break;
+        case SelectType::HUMIDITY_SUBTYPE:
+          this->set_entity_category(EntityCategory::ENTITY_CATEGORY_CONFIG);
+          this->traits.set_options({"Smart","Fan"});
+          break;
+        case SelectType::DRY_LEVEL:
+          this->set_entity_category(EntityCategory::ENTITY_CATEGORY_CONFIG);
+          this->traits.set_options({"Low","High"});
+          break;
         default:
           break;
       }

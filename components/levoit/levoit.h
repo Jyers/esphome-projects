@@ -77,11 +77,17 @@ class Levoit : public Component, public uart::UARTDevice {
   void set_fan(LevoitFan *fan) { this->fan_ = fan; }
   LevoitFan *get_fan() const { return this->fan_; }
   LevoitNumber *get_number(NumberType type) const { return numbers_[nt_idx_(type)]; }
+  LevoitSensor *sensors_ptr(SensorType type) const { return sensors_[st_idx_(type)]; }
   class LevoitBinarySensor *get_binary_sensor(BinarySensorType type) const { return binary_sensors_[bs_idx_(type)]; }
   bool get_binary_sensor_state(BinarySensorType type) const { return binary_sensor_states_[bs_idx_(type)]; }
   void start_timer(){this->timer_active_ = true;};
   void stop_timer(){this->timer_active_ = false;}; 
   bool is_timer_active() const { return this->timer_active_; };
+  
+  // ESP-managed timer (for superior devices)
+  void start_esp_timer(uint32_t duration_secs);
+  void stop_esp_timer();
+  void send_timer_update(uint32_t remaining_secs);
   
   // Getters for internally tracked values
   uint32_t get_used_cadr() const { return used_cadr_; }
@@ -119,6 +125,13 @@ class Levoit : public Component, public uart::UARTDevice {
   bool wifi_led_solid_{false};
   bool filter_led_on_{false};
   bool filter_blinking_{false};
+  
+  // ESP-managed timer state (for superior devices)
+  bool esp_timer_active_{false};
+  uint32_t esp_timer_start_millis_{0};
+  uint32_t esp_timer_duration_secs_{0};
+  uint32_t esp_timer_last_update_{0};
+  uint8_t esp_timer_zero_count_{0};
   
   // Internal tracked values (persisted in preferences)
   uint32_t used_cadr_{0};

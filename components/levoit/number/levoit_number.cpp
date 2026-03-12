@@ -58,6 +58,16 @@ namespace esphome
           }
           break;
 
+        case NumberType::HUMIDITY_TARGET:
+          this->traits.set_device_class("humidity");
+          this->traits.set_unit_of_measurement("%");
+          this->traits.set_mode(number::NumberMode::NUMBER_MODE_SLIDER);
+          this->traits.set_min_value(30);
+          this->traits.set_max_value(80);
+          this->traits.set_step(5);
+          this->set_icon("mdi:water-percent");
+          break;
+
         default:
           break;
       }

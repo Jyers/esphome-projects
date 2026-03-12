@@ -19,6 +19,10 @@ TYPE_MAP = {
     "white_noise_fan_level": SelectType.WHITE_NOISE_FAN_LEVEL,
     "sleep_mode_fan_mode_level": SelectType.SLEEP_MODE_FAN_MODE_LEVEL,  
     "daytime_fan_mode_level": SelectType.DAYTIME_FAN_MODE_LEVEL,
+    # Superior only below
+    "auto_profile": SelectType.AUTO_PROFILE,
+    "humidity_subtype": SelectType.HUMIDITY_SUBTYPE,
+    "dry_level": SelectType.DRY_LEVEL,
 }
 
 CONFIG_SCHEMA = select.select_schema(LevoitSelect).extend(
