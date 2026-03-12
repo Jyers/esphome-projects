@@ -162,8 +162,11 @@ namespace esphome
           {
             decode_superior_status(self, model, payload, payload_len);
           }
-          // Superior ACKs (msg_type=0x12) are handled by the ack logic above
-          // Timer is ESP-managed for superior, no MCU timer decoding needed
+          // Superior models: timer set from device button (same format as vital timer)
+          if (msg_type == 0x22 && ptype0 == 0x1B && ptype1 == 0x50)
+          {
+            decode_superior_timer(self, model, payload, payload_len);
+          }
         }
       }
 
