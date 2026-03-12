@@ -74,6 +74,7 @@ class Levoit : public Component, public uart::UARTDevice {
   float calculate_filter_life_left_percent() const;  // Remaining filter life percentage (0-100 with decimals)
   void sendCommand(CommandType commandType);   // if CommandType exists in your project
   void ackMessage(uint8_t ptype0, uint8_t ptype1);
+  void ackFilterReset(uint8_t ptype0, uint8_t ptype1);
   void set_fan(LevoitFan *fan) { this->fan_ = fan; }
   LevoitFan *get_fan() const { return this->fan_; }
   LevoitNumber *get_number(NumberType type) const { return numbers_[nt_idx_(type)]; }

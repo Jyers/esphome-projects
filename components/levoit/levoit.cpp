@@ -913,6 +913,32 @@ namespace esphome
             }
         }
 
+        /**
+         * @brief Sends a filter-reset acknowledgement (0x52) for the received ptype0/1.
+         *        Used when the MCU reports a filter reset initiated from the physical display.
+         */
+        void Levoit::ackFilterReset(uint8_t ptype0, uint8_t ptype1)
+        {
+            uint8_t pv = 0x02; // Vital/Superior protocol version
+
+            std::vector<uint8_t> message = {0xA5, 0x52, 0xFF, 0x04, 0x00, 0x00, pv, ptype0, ptype1, 0x16};
+
+            levoit_finalize_message(message, messageUpCounter);
+
+            if (message.size() > 0)
+            {
+                ESP_LOGI(TAG, ">>> Sending filter reset ack for: 0x%02X 0x%02X", ptype0, ptype1);
+
+                this->write_array(message.data(), message.size());
+                this->flush();
+                // update the message counter
+                if (messageUpCounter == 255)
+                    messageUpCounter = 16;
+                else
+                    messageUpCounter++;
+            }
+        }
+
         // --- ESP-managed timer methods (for superior devices) ---
         void Levoit::start_esp_timer(uint32_t duration_secs)
         {
