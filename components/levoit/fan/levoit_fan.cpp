@@ -52,12 +52,12 @@ namespace esphome
             std::vector<const char *> preset_modes;
             for (const auto &m : MODE_MAP)
             {
-                if(isCoreModel && (std::strcmp(m.preset, "Pet") == 0 || std::strcmp(m.preset, "Humidity") == 0))
-                    continue; // Core models do not have Pet or Humidity mode
-                if(isSuperior && std::strcmp(m.preset, "Pet") == 0)
-                    continue; // Superior does not have Pet mode
+                if(isCoreModel && std::strcmp(m.preset, "Pet") == 0)
+                    continue; // Core models do not have Pet mode
                 if(!isSuperior && std::strcmp(m.preset, "Humidity") == 0)
                     continue; // Only Superior has Humidity mode
+                if(isSuperior && std::strcmp(m.preset, "Pet") == 0)
+                    continue; // Superior does not have Pet mode
                 preset_modes.push_back(m.preset);
             }
             
