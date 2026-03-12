@@ -630,7 +630,7 @@ namespace esphome
             if (this->model_ == ModelType::SUPERIOR6000S)
             {
                 // ESP-managed timer for superior devices
-                if (this->esp_timer_active_ && now - esp_timer_last_update_ >= 10000)
+                if (this->esp_timer_active_ && now - esp_timer_last_update_ >= 60000)
                 {
                     esp_timer_last_update_ = now;
                     uint32_t elapsed_secs = (now - esp_timer_start_millis_) / 1000;

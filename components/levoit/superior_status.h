@@ -12,5 +12,10 @@ void decode_superior_status(Levoit *self,
                             const uint8_t *payload,
                             size_t payload_len);
 
+void decode_superior_timer(Levoit *self,
+                            ModelType model,
+                            const uint8_t *payload,
+                            size_t payload_len);
+
 }  // namespace levoit
 }  // namespace esphome

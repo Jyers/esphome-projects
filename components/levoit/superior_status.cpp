@@ -214,5 +214,65 @@ namespace esphome
       }
     }
 
+    void decode_superior_timer(Levoit *self,
+                              ModelType model,
+                              const uint8_t *payload,
+                              size_t payload_len)
+    {
+      if (self == nullptr || !payload || payload_len == 0)
+        return;
+
+      std::vector<LevoitTLV> tlvs;
+      bool ok = extract_tlvs_from_payload(model, payload, payload_len, tlvs, 0);
+      if (!ok)
+      {
+        ESP_LOGW(TAG_SUP, "Timer TLV extraction failed (payload_len=%u)", (unsigned)payload_len);
+        return;
+      }
+
+      uint32_t initial_secs = 0;
+      bool have_initial = false;
+
+      for (const auto &t : tlvs)
+      {
+        switch (t.tag)
+        {
+        case 0x01:
+        {
+          initial_secs = t.value_u32;
+          have_initial = true;
+          uint16_t initial_min = (uint16_t)initial_secs / 60;
+          ESP_LOGV(TAG_SUP, "TimerInitial=%u sec (%u min)", (unsigned)initial_secs, initial_min);
+          self->publish_number(NumberType::TIMER, initial_min);
+          self->publish_text_sensor(TextSensorType::TIMER_DURATION_INITIAL, format_duration_minutes(initial_min));
+          break;
+        }
+        case 0x02:
+        {
+          uint32_t remaining_secs = t.value_u32;
+          uint16_t remaining_min = (uint16_t)remaining_secs / 60;
+          ESP_LOGV(TAG_SUP, "TimerRemaining=%u sec (%u min)", (unsigned)remaining_secs, remaining_min);
+          self->publish_sensor(SensorType::TIMER_CURRENT, remaining_min);
+          self->publish_text_sensor(TextSensorType::TIMER_DURATION_CURRENT, format_duration_minutes(remaining_min));
+
+          if (remaining_secs > 0)
+          {
+            // Use initial duration if available, otherwise use remaining
+            uint32_t duration = have_initial ? initial_secs : remaining_secs;
+            self->start_esp_timer(duration);
+          }
+          else
+          {
+            self->stop_esp_timer();
+            self->publish_number(NumberType::TIMER, 0);
+          }
+          break;
+        }
+        default:
+          break;
+        }
+      }
+    }
+
   } // namespace levoit
 } // namespace esphome
