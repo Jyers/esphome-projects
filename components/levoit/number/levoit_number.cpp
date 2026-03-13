@@ -28,11 +28,11 @@ namespace esphome
 
         case NumberType::TIMER:
           this->traits.set_device_class("duration");
-          this->traits.set_unit_of_measurement("min");
-          this->traits.set_mode(number::NumberMode::NUMBER_MODE_SLIDER);  // if you want
+          this->traits.set_unit_of_measurement("h");
+          this->traits.set_mode(number::NumberMode::NUMBER_MODE_SLIDER);
           this->traits.set_min_value(0);
-          this->traits.set_max_value(720); // 12 hours
-          this->traits.set_step(30);
+          this->traits.set_max_value(12);
+          this->traits.set_step(0.5);
           break;
         case NumberType::FILTER_LIFETIME_MONTHS:
           this->traits.set_device_class("duration");
@@ -76,9 +76,8 @@ namespace esphome
 
     void LevoitNumber::control(float value)
     {
-      uint32_t state = static_cast<uint32_t>(value);
       // Optimistic update for HA UI
-      this->publish_state(state);
+      this->publish_state(value);
       
       // Save to preferences if filter_lifetime_months
       if (this->type_ == NumberType::FILTER_LIFETIME_MONTHS) {
@@ -92,7 +91,7 @@ namespace esphome
         return;
       }
 
-      parent_->on_number_command(this->type_, state);
+      parent_->on_number_command(this->type_, value);
     }
 
   } // namespace levoit

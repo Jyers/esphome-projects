@@ -42,10 +42,12 @@ namespace esphome
         {
         case 0x01:
         {
-          uint16_t initial_min = (uint16_t)t.value_u32 / 60;
-          ESP_LOGV(TAG_VITAL, "Initial=%u (0x%04X), min = %u", (unsigned)t.value_u32, (unsigned)t.value_u32, initial_min);
+          uint32_t initial_secs = t.value_u32;
+          float initial_hours = initial_secs / 3600.0f;
+          uint16_t initial_min = initial_secs / 60;
+          ESP_LOGV(TAG_VITAL, "Initial=%u (0x%04X), hours = %.2f", (unsigned)t.value_u32, (unsigned)t.value_u32, initial_hours);
           if (self != nullptr){
-            self->publish_number(NumberType::TIMER, initial_min);
+            self->publish_number(NumberType::TIMER, initial_hours);
             self->publish_text_sensor(TextSensorType::TIMER_DURATION_INITIAL, format_duration_minutes(initial_min));
           }
             
@@ -54,13 +56,15 @@ namespace esphome
         }
         case 0x02:
         {
-          uint16_t remaining_min = (uint16_t)t.value_u32 / 60;
+          uint32_t remaining_secs = t.value_u32;
+          float remaining_hours = remaining_secs / 3600.0f;
+          uint16_t remaining_min = remaining_secs / 60;
 
           if (self != nullptr)
           {
-            self->publish_sensor(SensorType::TIMER_CURRENT, t.value_u32);
+            self->publish_sensor(SensorType::TIMER_CURRENT, remaining_hours);
             self->publish_text_sensor(TextSensorType::TIMER_DURATION_CURRENT, format_duration_minutes(remaining_min));
-            if (remaining_min > 0)
+            if (remaining_secs > 0)
             {
               self->start_timer();        
             }
@@ -68,13 +72,13 @@ namespace esphome
             {
               if (self->is_timer_active()){
                 self->stop_timer();
-                self->publish_number(NumberType::TIMER, 0); // set to 0 when timer ends
+                self->publish_number(NumberType::TIMER, 0.0f); // set to 0 when timer ends
               }
               
             }
           }
 
-          ESP_LOGV(TAG_VITAL, "remaining=%u (0x%04X), min = %u", (unsigned)t.value_u32, (unsigned)t.value_u32, remaining_min);
+          ESP_LOGV(TAG_VITAL, "remaining=%u (0x%04X), hours = %.2f", (unsigned)t.value_u32, (unsigned)t.value_u32, remaining_hours);
           break;
         }
         default:

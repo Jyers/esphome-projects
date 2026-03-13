@@ -54,7 +54,7 @@ switch:
 number:
   - platform: levoit
     levoit: levoitsuperior6000
-    name: "Timer (min)"
+    name: "Timer"
     type: timer
   - platform: levoit
     levoit: levoitsuperior6000
@@ -82,6 +82,10 @@ sensor:
     levoit: levoitsuperior6000
     name: "Filter Life %"
     type: filter_life_left
+  - platform: levoit
+    levoit: levoitsuperior6000
+    name: "Timer Remaining"
+    type: timer_current
 
 select:
   - platform: levoit
@@ -104,16 +108,8 @@ text_sensor:
     type: mcu_version
   - platform: levoit
     levoit: levoitsuperior6000
-    name: "Timer Initial"
-    type: timer_duration_initial
-  - platform: levoit
-    levoit: levoitsuperior6000
-    name: "Timer Remaining"
-    type: timer_duration_remaining
-  - platform: levoit
-    levoit: levoitsuperior6000
-    name: "Error"
-    type: error_message
+    name: "ESP Version"
+    type: esp_version
 
 binary_sensor:
   - platform: levoit

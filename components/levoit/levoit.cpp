@@ -91,30 +91,28 @@ namespace esphome
             sw->publish_state(state);
         }
 
-        void Levoit::publish_sensor(SensorType type, uint32_t value)
+        void Levoit::publish_sensor(SensorType type, float value)
         {
             auto *se = sensors_[st_idx_(type)];
             if (!se)
                 return;
 
-            float fvalue = static_cast<float>(value);
             // avoid redundant publishes (helps “loop feel”)
 
-            if (se->has_state() && se->state == fvalue)
+            if (se->has_state() && se->state == value)
                 return;
             se->publish_state(value);
         }
 
-        void Levoit::publish_number(NumberType type, uint32_t value)
+        void Levoit::publish_number(NumberType type, float value)
         {
             auto *nm = numbers_[nt_idx_(type)];
             if (!nm)
                 return;
 
-            float fvalue = static_cast<float>(value);
             // avoid redundant publishes (helps “loop feel”)
 
-            if (nm->has_state() && nm->state == fvalue)
+            if (nm->has_state() && nm->state == value)
                 return;
             nm->publish_state(value);
         }
@@ -210,7 +208,7 @@ namespace esphome
             }
         }
 
-        void Levoit::on_number_command(NumberType type, uint32_t value)
+        void Levoit::on_number_command(NumberType type, float value)
         {
             // Optional: restrict by model
             // if (model_ != ModelType::VITAL200S && type == NumberType::EFFICIENCY_ROOM_SIZE) return;
@@ -220,22 +218,28 @@ namespace esphome
             case NumberType::TIMER:
                 if (this->model_ == ModelType::SUPERIOR6000S)
                 {
-                    // For superior: ESP manages the timer countdown
-                    uint32_t secs = value * 60;
+                    // For superior: ESP manages the timer countdown (value is in hours)
+                    uint32_t secs = static_cast<uint32_t>(value * 3600);
                     this->sendCommand(setTimerMinutes);
                     if (secs > 0)
                     {
                         this->start_esp_timer(secs);
-                        this->publish_text_sensor(TextSensorType::TIMER_DURATION_INITIAL, format_duration_minutes(value));
+                        uint16_t mins = secs / 60;
+                        this->publish_text_sensor(TextSensorType::TIMER_DURATION_INITIAL, format_duration_minutes(mins));
+                        // Immediately publish timer remaining (same as initial at start)
+                        this->publish_sensor(SensorType::TIMER_CURRENT, value);
+                        this->publish_text_sensor(TextSensorType::TIMER_DURATION_CURRENT, format_duration_minutes(mins));
                     }
                     else
                     {
                         this->stop_esp_timer();
+                        this->publish_sensor(SensorType::TIMER_CURRENT, 0.0f);
+                        this->publish_text_sensor(TextSensorType::TIMER_DURATION_CURRENT, format_duration_minutes(0));
                     }
                 }
                 else
                 {
-                    this->sendCommand(setTimerMinutes); // in minutes
+                    this->sendCommand(setTimerMinutes);
                 }
                 break;
 
@@ -645,12 +649,13 @@ namespace esphome
                     uint32_t elapsed_secs = (now - esp_timer_start_millis_) / 1000;
                     uint32_t remaining = (elapsed_secs >= esp_timer_duration_secs_) ? 0 : (esp_timer_duration_secs_ - elapsed_secs);
                     uint16_t remaining_min = remaining / 60;
+                    float remaining_hours = remaining / 3600.0f;
 
                     if (remaining > 0)
                     {
                         ESP_LOGD(TAG, "ESP timer update: %u sec remaining", remaining);
                         this->send_timer_update(remaining);
-                        this->publish_sensor(SensorType::TIMER_CURRENT, remaining);
+                        this->publish_sensor(SensorType::TIMER_CURRENT, remaining_hours);
                         this->publish_text_sensor(TextSensorType::TIMER_DURATION_CURRENT, format_duration_minutes(remaining_min));
                     }
                     else
@@ -666,8 +671,8 @@ namespace esphome
                         {
                             ESP_LOGI(TAG, "ESP timer finished");
                             this->stop_esp_timer();
-                            this->publish_number(NumberType::TIMER, 0);
-                            this->publish_sensor(SensorType::TIMER_CURRENT, 0);
+                            this->publish_number(NumberType::TIMER, 0.0f);
+                            this->publish_sensor(SensorType::TIMER_CURRENT, 0.0f);
                             this->publish_text_sensor(TextSensorType::TIMER_DURATION_CURRENT, format_duration_minutes(0));
                         }
                     }

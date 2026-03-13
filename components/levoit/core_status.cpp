@@ -29,16 +29,18 @@ namespace esphome
 
       uint16_t remaining_min = remaining_sec / 60;
       uint16_t initial_min = initial_sec / 60;
+      float remaining_hours = remaining_sec / 3600.0f;
+      float initial_hours = initial_sec / 3600.0f;
 
-      ESP_LOGV(TAG_CORE, "Timer: remaining=%u sec (%u min), initial=%u sec (%u min)", 
-               remaining_sec, remaining_min, initial_sec, initial_min);
+      ESP_LOGV(TAG_CORE, "Timer: remaining=%u sec (%.2f h), initial=%u sec (%.2f h)", 
+               remaining_sec, remaining_hours, initial_sec, initial_hours);
 
-      self->publish_number(NumberType::TIMER, initial_min);
+      self->publish_number(NumberType::TIMER, initial_hours);
       self->publish_text_sensor(TextSensorType::TIMER_DURATION_INITIAL, format_duration_minutes(initial_min));
-      self->publish_sensor(SensorType::TIMER_CURRENT, remaining_sec);
+      self->publish_sensor(SensorType::TIMER_CURRENT, remaining_hours);
       self->publish_text_sensor(TextSensorType::TIMER_DURATION_CURRENT, format_duration_minutes(remaining_min));
 
-      if (remaining_min > 0)
+      if (remaining_sec > 0)
       {
         self->start_timer();
       }
@@ -47,7 +49,7 @@ namespace esphome
         if (self->is_timer_active())
         {
           self->stop_timer();
-          self->publish_number(NumberType::TIMER, 0);
+          self->publish_number(NumberType::TIMER, 0.0f);
         }
       }
     }
