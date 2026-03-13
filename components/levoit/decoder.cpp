@@ -99,7 +99,19 @@ namespace esphome
       // ack all messages!
       //only if (0x22)
       if(msg_type==0x22)
-      self->ackMessage(ptype0, ptype1);
+      {
+        // Filter reset from display requires a special 0x52 response
+        if (ptype0 == 0x44 && ptype1 == 0x55 &&
+            (model == ModelType::SUPERIOR6000S ||
+             model == ModelType::VITAL100S || model == ModelType::VITAL200S))
+        {
+          self->ackFilterReset(ptype0, ptype1);
+        }
+        else
+        {
+          self->ackMessage(ptype0, ptype1);
+        }
+      }
 
       uint8_t h = compute_payload_hash_(payload, payload_len);
       ESP_LOGD("levoit.dedup", "model=%d ptype=%02X%02X payload_len=%u hash=0x%02X last=0x%02X",
@@ -166,6 +178,14 @@ namespace esphome
           if (msg_type == 0x22 && ptype0 == 0x1B && ptype1 == 0x50)
           {
             decode_superior_timer(self, model, payload, payload_len);
+          }
+          // Superior models: filter reset from display
+          if (msg_type == 0x22 && ptype0 == 0x44 && ptype1 == 0x55)
+          {
+            ESP_LOGI(TAG_DEC, "Filter reset from display (Superior)");
+            self->set_used_cadr(0);
+            self->set_total_runtime(0);
+            self->publish_filter_stats_now();
           }
         }
       }
