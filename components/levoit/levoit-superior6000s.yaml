@@ -114,19 +114,19 @@ text_sensor:
 binary_sensor:
   - platform: levoit
     levoit: levoitsuperior6000
-    name: "Filter Low"
+    name: "Filter State"
     type: filter_low
   - platform: levoit
     levoit: levoitsuperior6000
-    name: "Cover Removed"
+    name: "Cover State"
     type: cover_removed
   - platform: levoit
     levoit: levoitsuperior6000
-    name: "Water Tank Empty"
+    name: "Water Level"
     type: water_tank_empty
   - platform: levoit
     levoit: levoitsuperior6000
-    name: "Dry Active"
+    name: "Drying"
     type: dry_active
   - platform: levoit
     levoit: levoitsuperior6000

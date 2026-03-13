@@ -320,18 +320,8 @@ namespace esphome
 
             case SelectType::DRY_LEVEL:
                 // Store the dry level preference for when Dry mode is selected from the fan entity
+                // Do not send a command to the MCU here; drying is only started via the fan entity mode change
                 this->dry_level_preference_ = (value <= 1) ? value : 0;
-                switch (value)
-                {
-                case 0:
-                    this->sendCommand(setDryLevelLow);
-                    break;
-                case 1:
-                    this->sendCommand(setDryLevelHigh);
-                    break;
-                default:
-                    break;
-                }
                 break;
 
             default:

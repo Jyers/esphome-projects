@@ -272,7 +272,7 @@ binary_sensor:
   - platform: levoit
     levoit_id: air_purifier
     type: filter_low
-    name: "Filter Low"
+    name: "Filter State"
 
 button:
   - platform: levoit

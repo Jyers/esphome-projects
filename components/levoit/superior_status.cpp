@@ -232,7 +232,23 @@ namespace esphome
       {
         int pwr = have_power ? (power ? 1 : 0) : -1;
         int spd = have_speed ? (int)speed : -1;
-        int mod = have_mode ? (int)mode : -1;
+        // Map MCU mode values (1-based) to internal MODE_MAP values (0-based)
+        // MCU: 1=Manual, 2=Sleep, 3=Humidity, 4=Auto
+        // Internal: 0=Manual, 1=Sleep, 2=Auto, 3=Humidity
+        int mod = -1;
+        if (have_mode)
+        {
+          switch (mode)
+          {
+          case 1: mod = 0; break; // Manual
+          case 2: mod = 1; break; // Sleep
+          case 3: mod = 3; break; // Humidity
+          case 4: mod = 2; break; // Auto
+          default:
+            ESP_LOGW(TAG_SUP, "Unexpected MCU mode value: %u", (unsigned)mode);
+            break;
+          }
+        }
         // When dry mode is active, override the fan preset to "Dry" (device mode 6)
         if (have_dry_active && dry_active)
           mod = 6;
