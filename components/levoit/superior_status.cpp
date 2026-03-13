@@ -3,6 +3,7 @@
 #include "tlv.h"
 #include "types.h"
 #include "fan/levoit_fan.h"
+#include "sensor/levoit_sensor.h"
 #include "decoder_helpers.h"
 #include <vector>
 #include <string>
