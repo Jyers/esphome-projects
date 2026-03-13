@@ -659,11 +659,12 @@ namespace esphome
                         }
                         else
                         {
-                            ESP_LOGI(TAG, "ESP timer finished");
+                            ESP_LOGI(TAG, "ESP timer finished, turning off device");
                             this->stop_esp_timer();
                             this->publish_number(NumberType::TIMER, 0.0f);
                             this->publish_sensor(SensorType::TIMER_CURRENT, 0.0f);
                             this->publish_text_sensor(TextSensorType::TIMER_DURATION_CURRENT, format_duration_minutes(0));
+                            this->sendCommand(setDeviceOFF);
                         }
                     }
                 }
