@@ -101,7 +101,7 @@ sensor:
     type: filter_life_left
   - platform: levoit
     levoit: levoitvital100
-    name: "Timer Remaining"
+    name: "Timer Remaining (h)"
     type: timer_current
   - platform: levoit
     levoit: levoitvital100
