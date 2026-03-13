@@ -44,6 +44,11 @@ namespace esphome
           this->set_icon("mdi:air-filter");
           this->set_accuracy_decimals(1);
           break;
+        case SensorType::FILTER_LIFE_MCU:
+          this->set_unit_of_measurement("%");
+          this->set_icon("mdi:air-filter");
+          this->set_accuracy_decimals(0);
+          break;
         case SensorType::TEMPERATURE:
           this->set_device_class("temperature");
           this->set_unit_of_measurement("°C");
