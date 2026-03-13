@@ -17,14 +17,14 @@ namespace esphome
 
       switch (cmd)
       {
-      // --- Power ---
+      // --- Power (feature_id = 0x00, protocol = 0x50) ---
       case CommandType::setDeviceON:
-        msg_type = {0x02, 0x00, 0x55};
+        msg_type = {0x02, 0x00, 0x50};
         payload = {0x01, 0x01, 0x01};
         break;
 
       case CommandType::setDeviceOFF:
-        msg_type = {0x02, 0x00, 0x55};
+        msg_type = {0x02, 0x00, 0x50};
         payload = {0x01, 0x01, 0x00};
         break;
 
@@ -117,25 +117,25 @@ namespace esphome
         payload = {0x02, 0x01, 0x02};
         break;
 
-      // --- Display (feature_id = 0x0F) ---
+      // --- Display (feature_id = 0x0F, protocol = 0x50) ---
       case CommandType::setDisplayOn:
-        msg_type = {0x02, 0x0F, 0x55};
+        msg_type = {0x02, 0x0F, 0x50};
         payload = {0x01, 0x01, 0x01};
         break;
 
       case CommandType::setDisplayOff:
-        msg_type = {0x02, 0x0F, 0x55};
+        msg_type = {0x02, 0x0F, 0x50};
         payload = {0x01, 0x01, 0x00};
         break;
 
-      // --- Display lock (feature_id = 0x40) ---
+      // --- Display lock (feature_id = 0x40, protocol = 0x51) ---
       case CommandType::setDisplayLockOn:
-        msg_type = {0x02, 0x40, 0x55};
+        msg_type = {0x02, 0x40, 0x51};
         payload = {0x01, 0x01, 0x01};
         break;
 
       case CommandType::setDisplayLockOff:
-        msg_type = {0x02, 0x40, 0x55};
+        msg_type = {0x02, 0x40, 0x51};
         payload = {0x01, 0x01, 0x00};
         break;
 
@@ -157,10 +157,10 @@ namespace esphome
         break;
       }
 
-      // --- Timer (feature_id = 0x19) ---
+      // --- Timer (feature_id = 0x19, protocol = 0x50) ---
       case CommandType::setTimerMinutes:
       {
-        msg_type = {0x02, 0x19, 0x55};
+        msg_type = {0x02, 0x19, 0x50};
         auto *num = self->get_number(NumberType::TIMER);
         if (num != nullptr)
         {

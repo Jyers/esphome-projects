@@ -961,7 +961,7 @@ namespace esphome
         {
             // Build and send timer command with specific remaining seconds
             // Uses feature_id=0x19 with payload: 01 04 <LE32 seconds>
-            std::vector<uint8_t> msg_type = {0x02, 0x19, 0x55};
+            std::vector<uint8_t> msg_type = {0x02, 0x19, 0x50};
             uint8_t b0 = (remaining_secs >> 0) & 0xFF;
             uint8_t b1 = (remaining_secs >> 8) & 0xFF;
             uint8_t b2 = (remaining_secs >> 16) & 0xFF;

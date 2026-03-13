@@ -76,20 +76,12 @@ sensor:
     type: temperature
   - platform: levoit
     levoit: levoitsuperior6000
-    name: "Timer Remaining"
-    type: timer_current
-  - platform: levoit
-    levoit: levoitsuperior6000
     name: "Filter Life (MCU)"
     type: filter_life_mcu
   - platform: levoit
     levoit: levoitsuperior6000
     name: "Filter Life %"
     type: filter_life_left
-  - platform: levoit
-    levoit: levoitsuperior6000
-    name: "Current CADR"
-    type: current_cadr
 
 select:
   - platform: levoit
