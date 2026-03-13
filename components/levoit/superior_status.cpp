@@ -36,8 +36,10 @@ namespace esphome
       bool have_power = false;
       bool have_mode = false;
       bool have_speed = false;
+      bool have_dry_active = false;
 
       bool power = false;
+      bool dry_active = false;
       uint32_t mode = 0;
       uint32_t speed = 0;
 
@@ -138,11 +140,17 @@ namespace esphome
                      dry_remaining, dry_active_flag, dry_level);
 
             // Active flag: 01=active, 02=inactive (unusual)
-            self->publish_binary_sensor(BinarySensorType::DRY_ACTIVE, dry_active_flag == 1);
+            have_dry_active = true;
+            dry_active = (dry_active_flag == 1);
+            self->publish_binary_sensor(BinarySensorType::DRY_ACTIVE, dry_active);
 
             // Dry level: 01=Low(idx 0), 02=High(idx 1)
             if (dry_level >= 1 && dry_level <= 2)
+            {
               self->publish_select(SelectType::DRY_LEVEL, dry_level - 1);
+              // Update the stored dry level preference
+              self->set_dry_level_preference(dry_level - 1);
+            }
           }
           break;
         }
@@ -210,6 +218,9 @@ namespace esphome
         int pwr = have_power ? (power ? 1 : 0) : -1;
         int spd = have_speed ? (int)speed : -1;
         int mod = have_mode ? (int)mode : -1;
+        // When dry mode is active, override the fan preset to "Dry" (device mode 6)
+        if (have_dry_active && dry_active)
+          mod = 6;
         ESP_LOGV(TAG_SUP, "Applying to fan: power=%d speed=%d mode=%d", pwr, spd, mod);
         fan->apply_device_status(pwr, spd, mod);
       }
@@ -253,7 +264,7 @@ namespace esphome
           uint32_t remaining_secs = t.value_u32;
           uint16_t remaining_min = (uint16_t)remaining_secs / 60;
           ESP_LOGV(TAG_SUP, "TimerRemaining=%u sec (%u min)", (unsigned)remaining_secs, remaining_min);
-          self->publish_sensor(SensorType::TIMER_CURRENT, remaining_min);
+          self->publish_sensor(SensorType::TIMER_CURRENT, remaining_secs);
           self->publish_text_sensor(TextSensorType::TIMER_DURATION_CURRENT, format_duration_minutes(remaining_min));
 
           if (remaining_secs > 0)

@@ -21,6 +21,7 @@ namespace esphome
             {2, "Auto"},
             {3, "Humidity"},
             {5, "Pet"},
+            {6, "Dry"},
         };
         static int preset_to_device_mode(const char *preset)
         {
@@ -58,6 +59,8 @@ namespace esphome
                     continue; // Only Superior has Humidity mode
                 if(isSuperior && std::strcmp(m.preset, "Pet") == 0)
                     continue; // Superior does not have Pet mode
+                if(!isSuperior && std::strcmp(m.preset, "Dry") == 0)
+                    continue; // Only Superior has Dry mode
                 preset_modes.push_back(m.preset);
             }
             

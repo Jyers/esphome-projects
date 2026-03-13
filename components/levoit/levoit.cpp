@@ -315,6 +315,8 @@ namespace esphome
                 break;
 
             case SelectType::DRY_LEVEL:
+                // Store the dry level preference for when Dry mode is selected from the fan entity
+                this->dry_level_preference_ = (value == 1) ? 1 : 0;
                 switch (value)
                 {
                 case 0:
@@ -395,6 +397,13 @@ namespace esphome
                     break;
                 case 5:
                     this->sendCommand(setFanModePet);
+                    break;
+                case 6:
+                    // Dry mode: use stored dry level preference
+                    if (this->dry_level_preference_ == 1)
+                        this->sendCommand(setDryLevelHigh);
+                    else
+                        this->sendCommand(setDryLevelLow);
                     break;
                 default:
                     break;
@@ -641,7 +650,7 @@ namespace esphome
                     {
                         ESP_LOGD(TAG, "ESP timer update: %u sec remaining", remaining);
                         this->send_timer_update(remaining);
-                        this->publish_sensor(SensorType::TIMER_CURRENT, remaining_min);
+                        this->publish_sensor(SensorType::TIMER_CURRENT, remaining);
                         this->publish_text_sensor(TextSensorType::TIMER_DURATION_CURRENT, format_duration_minutes(remaining_min));
                     }
                     else
