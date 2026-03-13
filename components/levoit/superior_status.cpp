@@ -244,7 +244,9 @@ namespace esphome
           case 2: mod = 1; break; // Sleep
           case 3: mod = 3; break; // Humidity
           case 4: mod = 2; break; // Auto
-          default: break;
+          default:
+            ESP_LOGW(TAG_SUP, "Unexpected MCU mode value: %u", (unsigned)mode);
+            break;
           }
         }
         // When dry mode is active, override the fan preset to "Dry" (device mode 6)
