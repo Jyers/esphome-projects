@@ -23,8 +23,7 @@ namespace esphome
           break;
         case SensorType::TIMER_CURRENT:
           this->set_device_class("duration");
-          this->set_unit_of_measurement("min");
-          this->set_entity_category(EntityCategory::ENTITY_CATEGORY_DIAGNOSTIC);
+          this->set_unit_of_measurement("s");
           break;
         case SensorType::PM25:
           this->set_device_class("pm25");
@@ -43,6 +42,11 @@ namespace esphome
         case SensorType::FILTER_LIFE_LEFT:
           this->set_unit_of_measurement("%");
           this->set_icon("mdi:air-filter");
+          this->set_accuracy_decimals(1);
+          break;
+        case SensorType::TEMPERATURE:
+          this->set_device_class("temperature");
+          this->set_unit_of_measurement("°C");
           this->set_accuracy_decimals(1);
           break;
         default:

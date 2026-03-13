@@ -58,7 +58,7 @@ namespace esphome
 
           if (self != nullptr)
           {
-            self->publish_sensor(SensorType::TIMER_CURRENT, remaining_min);
+            self->publish_sensor(SensorType::TIMER_CURRENT, t.value_u32);
             self->publish_text_sensor(TextSensorType::TIMER_DURATION_CURRENT, format_duration_minutes(remaining_min));
             if (remaining_min > 0)
             {

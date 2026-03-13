@@ -90,6 +90,10 @@ class Levoit : public Component, public uart::UARTDevice {
   void stop_esp_timer();
   void send_timer_update(uint32_t remaining_secs);
   
+  // Dry mode preference (for superior devices)
+  uint8_t get_dry_level_preference() const { return dry_level_preference_; }
+  void set_dry_level_preference(uint8_t level) { dry_level_preference_ = level; }
+  
   // Getters for internally tracked values
   uint32_t get_used_cadr() const { return used_cadr_; }
   uint32_t get_total_runtime() const { return total_runtime_; }
@@ -133,6 +137,10 @@ class Levoit : public Component, public uart::UARTDevice {
   uint32_t esp_timer_duration_secs_{0};
   uint32_t esp_timer_last_update_{0};
   uint8_t esp_timer_zero_count_{0};
+  
+  // Dry mode preference (for superior devices)
+  // 0 = Low, 1 = High
+  uint8_t dry_level_preference_{0};
   
   // Internal tracked values (persisted in preferences)
   uint32_t used_cadr_{0};
