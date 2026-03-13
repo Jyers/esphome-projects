@@ -316,7 +316,7 @@ namespace esphome
 
             case SelectType::DRY_LEVEL:
                 // Store the dry level preference for when Dry mode is selected from the fan entity
-                this->dry_level_preference_ = (value == 1) ? 1 : 0;
+                this->dry_level_preference_ = (value <= 1) ? value : 0;
                 switch (value)
                 {
                 case 0:
