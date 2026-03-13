@@ -32,11 +32,11 @@ bool extract_tlvs_from_payload(ModelType model,
     uint8_t len_code = payload[i + 1];
     uint8_t vlen = tlv_value_len_from_code_(model, len_code);
 
-    if (vlen == 0 || vlen > 4 || i + 2 + vlen > payload_len)
+    if (vlen == 0 || i + 2 + vlen > payload_len)
       return false;
 
     const uint8_t *val_ptr = payload + i + 2;
-    uint32_t val = read_le_u32_(val_ptr, vlen);
+    uint32_t val = read_le_u32_(val_ptr, vlen > 4 ? 4 : vlen);
     LevoitTLV t;
     t.tag = tag;
     t.value_len = vlen;
