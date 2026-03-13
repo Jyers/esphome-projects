@@ -151,7 +151,7 @@ button:
 binary_sensor:
   - platform: levoit
     levoit: levoitcore400
-    name: "Filter Low"
+    name: "Filter State"
     type: filter_low
 #  Only for Vital100S and Vital200S
 #  - platform: levoit

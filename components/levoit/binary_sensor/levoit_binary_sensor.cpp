@@ -12,10 +12,21 @@ void LevoitBinarySensor::setup() {
               switch (this->type_)
             {
             case BinarySensorType::FILTER_LOW:
-                this->set_device_class("battery");
+                this->set_device_class("problem");
                 this->set_icon("mdi:air-filter");
                 break;
-
+            case BinarySensorType::COVER_REMOVED:
+                this->set_device_class("opening");
+                break;
+            case BinarySensorType::DRY_ACTIVE:
+                this->set_device_class("running");
+                break;
+            case BinarySensorType::HUMIDIFYING:
+                this->set_device_class("running");
+                break;
+            case BinarySensorType::WATER_TANK_EMPTY:
+                this->set_device_class("problem");
+                break;
             default:
                 break;
             }
