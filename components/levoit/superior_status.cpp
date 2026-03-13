@@ -53,6 +53,21 @@ namespace esphome
           power = (t.value_u32 == 1);
           break;
 
+        case 0x01:
+        {
+          // MCU Version: 3 bytes (patch, minor, major)
+          if (t.value_len >= 3 && t.value_ptr != nullptr)
+          {
+            uint8_t patch = t.value_ptr[0];
+            uint8_t minor = t.value_ptr[1];
+            uint8_t major = t.value_ptr[2];
+            ESP_LOGV(TAG_SUP, "MCU_Version=%u.%u.%u (major.minor.patch)", major, minor, patch);
+            self->publish_text_sensor(TextSensorType::MCU_VERSION,
+                                      std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch));
+          }
+          break;
+        }
+
         case 0x03:
           ESP_LOGV(TAG_SUP, "CoverRemoved=%u", (unsigned)t.value_u32);
           self->publish_binary_sensor(BinarySensorType::COVER_REMOVED, t.value_u32 == 1);
@@ -253,18 +268,19 @@ namespace esphome
         {
           initial_secs = t.value_u32;
           have_initial = true;
-          uint16_t initial_min = (uint16_t)initial_secs / 60;
-          ESP_LOGV(TAG_SUP, "TimerInitial=%u sec (%u min)", (unsigned)initial_secs, initial_min);
-          self->publish_number(NumberType::TIMER, initial_min);
-          self->publish_text_sensor(TextSensorType::TIMER_DURATION_INITIAL, format_duration_minutes(initial_min));
+          float initial_hours = initial_secs / 3600.0f;
+          ESP_LOGV(TAG_SUP, "TimerInitial=%u sec (%.2f h)", (unsigned)initial_secs, initial_hours);
+          self->publish_number(NumberType::TIMER, initial_hours);
+          self->publish_text_sensor(TextSensorType::TIMER_DURATION_INITIAL, format_duration_minutes(initial_secs / 60));
           break;
         }
         case 0x02:
         {
           uint32_t remaining_secs = t.value_u32;
+          float remaining_hours = remaining_secs / 3600.0f;
           uint16_t remaining_min = (uint16_t)remaining_secs / 60;
-          ESP_LOGV(TAG_SUP, "TimerRemaining=%u sec (%u min)", (unsigned)remaining_secs, remaining_min);
-          self->publish_sensor(SensorType::TIMER_CURRENT, remaining_secs);
+          ESP_LOGV(TAG_SUP, "TimerRemaining=%u sec (%.2f h)", (unsigned)remaining_secs, remaining_hours);
+          self->publish_sensor(SensorType::TIMER_CURRENT, remaining_hours);
           self->publish_text_sensor(TextSensorType::TIMER_DURATION_CURRENT, format_duration_minutes(remaining_min));
 
           if (remaining_secs > 0)
@@ -276,7 +292,7 @@ namespace esphome
           else
           {
             self->stop_esp_timer();
-            self->publish_number(NumberType::TIMER, 0);
+            self->publish_number(NumberType::TIMER, 0.0f);
           }
           break;
         }

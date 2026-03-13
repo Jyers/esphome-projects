@@ -72,7 +72,7 @@ number:
     type: efficiency_room_size
   - platform: levoit
     levoit: levoitcore300
-    name: "Timer (min)"
+    name: "Timer"
     type: timer
   - platform: levoit
     levoit: levoitcore300
@@ -96,16 +96,10 @@ sensor:
     levoit: levoitcore300
     name: "Filter %"
     type: filter_life_left
-# Better: auto_mode_room_size_high_fan text_sensor    
-#  - platform: levoit
-#    levoit: levoitcore300
-#    name: "Efficiency Count Dowmn Timer (sec)"
-#    type: efficiency_counter
-# Better: timer_duration_remaining text_sensor    
-#  - platform: levoit
-#    levoit: levoitcore300
-#    name: "Timer Remaining"
-#    type: timer_current
+  - platform: levoit
+    levoit: levoitcore300
+    name: "Timer Remaining"
+    type: timer_current
 select:
   - platform: levoit
     levoit: levoitcore300
@@ -120,18 +114,6 @@ text_sensor:
     levoit: levoitcore300
     name: "ESP Version"
     type: esp_version
-  - platform: levoit
-    levoit: levoitcore300
-    name: "Timer Duration"
-    type: timer_duration_initial
-  - platform: levoit
-    levoit: levoitcore300
-    name: "Timer Remaining"
-    type: timer_duration_remaining
-  - platform: levoit
-    levoit: levoitcore300
-    name: "Error"
-    type: error_message
 button:
   - platform: levoit
     levoit: levoitcore300

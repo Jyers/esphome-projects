@@ -135,7 +135,7 @@ namespace esphome
         auto *num = self->get_number(NumberType::TIMER);
         if (num != nullptr)
         {
-          uint32_t secs = static_cast<uint32_t>(num->state) * 60;
+          uint32_t secs = static_cast<uint32_t>(num->state * 3600);
           uint8_t b0 = (secs >> 0) & 0xFF;
           uint8_t b1 = (secs >> 8) & 0xFF;
           uint8_t b2 = (secs >> 16) & 0xFF;

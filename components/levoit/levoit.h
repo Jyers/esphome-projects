@@ -38,13 +38,13 @@ class Levoit : public Component, public uart::UARTDevice {
   
   // called by switch, number,... when HA toggles it
   void on_switch_command(SwitchType type, bool state);
-  void on_number_command(NumberType type, uint32_t value);  
+  void on_number_command(NumberType type, float value);  
   void on_select_command(SelectType type, uint32_t value);
 
   // called by decoder when device reports status
   void publish_switch(SwitchType type, bool state);
-  void publish_number(NumberType type, uint32_t value);
-  void publish_sensor(SensorType type, uint32_t value);
+  void publish_number(NumberType type, float value);
+  void publish_sensor(SensorType type, float value);
   void publish_select(SelectType type, uint32_t value);
   void publish_text_sensor(TextSensorType type, const std::string &value);
   // binary sensor + button

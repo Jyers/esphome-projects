@@ -23,7 +23,8 @@ namespace esphome
           break;
         case SensorType::TIMER_CURRENT:
           this->set_device_class("duration");
-          this->set_unit_of_measurement("s");
+          this->set_unit_of_measurement("h");
+          this->set_accuracy_decimals(2);
           break;
         case SensorType::PM25:
           this->set_device_class("pm25");
@@ -53,6 +54,11 @@ namespace esphome
           this->set_device_class("temperature");
           this->set_unit_of_measurement("°C");
           this->set_accuracy_decimals(1);
+          break;
+        case SensorType::HUMIDITY:
+          this->set_device_class("humidity");
+          this->set_unit_of_measurement("%");
+          this->set_accuracy_decimals(0);
           break;
         default:
           break;
