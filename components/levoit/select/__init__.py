@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import select
-from esphome.const import CONF_ID, CONF_OPTIONS  
+from esphome.const import CONF_ID, CONF_OPTIONS, CONF_ICON
 
 
 from .. import Levoit, CONF_LEVOIT_ID, levoit_ns
@@ -25,10 +25,23 @@ TYPE_MAP = {
     "dry_level": SelectType.DRY_LEVEL,
 }
 
+ICON_MAP = {
+    "auto_mode": None,
+    "sleep_mode": None,
+    "quick_clean_fan_level": None,
+    "white_noise_fan_level": None,
+    "sleep_mode_fan_mode_level": None,
+    "daytime_fan_mode_level": None,
+    "auto_profile": "mdi:auto-mode",
+    "humidity_subtype": "mdi:cloud-percent",
+    "dry_level": "mdi:fan",
+}
+
 CONFIG_SCHEMA = select.select_schema(LevoitSelect).extend(
     {
         cv.Required(CONF_LEVOIT_ID): cv.use_id(Levoit),
         cv.Required(CONF_TYPE): cv.one_of(*TYPE_MAP.keys(), lower=True),
+        cv.Optional(CONF_ICON): cv.icon,
     }
 )
 
@@ -37,7 +50,10 @@ async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     ntype = config[CONF_TYPE]
 
-
+    if CONF_ICON not in config:
+        icon = ICON_MAP.get(ntype)
+        if icon:
+            config[CONF_ICON] = icon
 
     await select.register_select(
         var, config,options=["Default"])
